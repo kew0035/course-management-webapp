@@ -1,0 +1,175 @@
+-- 删除现有数据库（慎用，仅用于初始化环境）
+DROP DATABASE IF EXISTS course_management;
+CREATE DATABASE course_management;
+USE course_management;
+
+-- 1. 用户表
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('student', 'lecturer', 'advisor', 'admin') NOT NULL,
+    INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 2. 部门表
+CREATE TABLE departments (
+    dpt_id INT AUTO_INCREMENT PRIMARY KEY,
+    dpt_name VARCHAR(50) NOT NULL UNIQUE,
+    INDEX idx_department_name (dpt_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 3. 学生表
+CREATE TABLE students (
+    stud_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    matric_no VARCHAR(20) NOT NULL UNIQUE,
+    stud_name VARCHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    INDEX idx_matric_no (matric_no),
+    INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 4. 讲师表
+CREATE TABLE lecturers (
+    lec_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    lec_name VARCHAR(100) NOT NULL,
+    dpt_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (dpt_id) REFERENCES departments(dpt_id),
+    INDEX idx_department (dpt_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 5. 学业顾问表
+CREATE TABLE advisors (
+    adv_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    adv_name VARCHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 6. 课程表
+CREATE TABLE courses (
+    course_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_code VARCHAR(20) NOT NULL UNIQUE,
+    course_name VARCHAR(100) NOT NULL,
+    lec_id INT NOT NULL,
+    FOREIGN KEY (lec_id) REFERENCES lecturers(lec_id) ON DELETE CASCADE,
+    INDEX idx_code (course_code),
+    INDEX idx_lecturer (lec_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 7. 成绩权重表
+CREATE TABLE grade_weights (
+    gw_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT NOT NULL,
+    component VARCHAR(50) NOT NULL,
+    max_mark DECIMAL(5,2) NOT NULL,
+    weight INT NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    UNIQUE KEY uniq_course_component (course_id, component),
+    INDEX idx_component (component)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 8. 学生成绩表
+CREATE TABLE student_grades (
+    sg_id INT AUTO_INCREMENT PRIMARY KEY,
+    stud_id INT NOT NULL,
+    course_id INT NOT NULL,
+    continuous_total DECIMAL(5,2) DEFAULT 0.00,
+    final_exam_score DECIMAL(5,2) DEFAULT 0.00,
+    total_score DECIMAL(5,2) AS (
+        continuous_total + final_exam_score
+    ) VIRTUAL,
+    FOREIGN KEY (stud_id) REFERENCES students(stud_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    INDEX idx_student_course (stud_id, course_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 9. 平时成绩表
+CREATE TABLE student_continuous_marks (
+    scm_id INT AUTO_INCREMENT PRIMARY KEY,
+    sg_id INT NOT NULL,
+    course_id INT NOT NULL,
+    component VARCHAR(50) NOT NULL,
+    score DECIMAL(5,2) NOT NULL,
+    FOREIGN KEY (sg_id) REFERENCES student_grades(sg_id) ON DELETE CASCADE,
+    INDEX idx_component (component)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 10. 成绩复议表
+CREATE TABLE grade_appeals (
+    ga_id INT AUTO_INCREMENT PRIMARY KEY,
+    stud_id INT NOT NULL,
+    course_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    resolved_by INT COMMENT 'Advisor/Lecturer ID',
+    resolved_at DATETIME,
+    FOREIGN KEY (stud_id) REFERENCES students(stud_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 11. 顾问笔记表
+CREATE TABLE advisor_notes (
+    adv_notes_id INT AUTO_INCREMENT PRIMARY KEY,
+    adv_id INT NOT NULL,
+    stud_id INT NOT NULL,
+    note TEXT NOT NULL,
+    is_confidential BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (adv_id) REFERENCES advisors(adv_id) ON DELETE CASCADE,
+    FOREIGN KEY (stud_id) REFERENCES students(stud_id) ON DELETE CASCADE,
+    FULLTEXT INDEX idx_note_content (note)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- 示例数据插入
+INSERT INTO departments (dpt_name) VALUES
+('Computer Science'),
+('Software Engineering'),
+('Emergent Computing'),
+('Applied Computing');
+
+INSERT INTO users (username, password, role) VALUES
+('student1', 'student123', 'student'), 
+('lecturer1', 'lecturer123', 'lecturer'),
+('advisor1', 'advisor123', 'advisor'),   
+('admin1', 'admin123', 'admin');     
+
+INSERT INTO students (user_id, matric_no, stud_name) VALUES
+(1, 'A22EC0001', 'Zoey');
+
+INSERT INTO lecturers (user_id, lec_name, dpt_id) VALUES
+(2, 'Dr. Ahmad Ali', 1);
+
+INSERT INTO advisors (user_id, adv_name) VALUES
+(3, 'Madam Leong');
+
+INSERT INTO courses (course_code, course_name, lec_id) VALUES
+('SCSJ1013', 'Web Technology', 1),
+('SCSI1111', 'Database Systems', 1);
+
+INSERT INTO grade_weights (course_id, component, max_mark, weight) VALUES
+(1, 'Quiz', 10, 10),
+(1, 'Assignment', 40, 20),
+(1, 'Final', 100, 30);
+
+-- 创建成绩记录
+INSERT INTO student_grades (stud_id, course_id, final_exam_score) VALUES
+(1, 1, 85.00);
+SET @sg_id = LAST_INSERT_ID();
+
+-- 插入平时成绩
+INSERT INTO student_continuous_marks (sg_id, course_id, component, score)
+VALUES 
+(@sg_id, 1, 'Quiz', 8.5),
+(@sg_id, 1, 'Assignment', 35.0);
+
+
+ALTER TABLE student_continuous_marks
+ADD CONSTRAINT fk_grade_components
+FOREIGN KEY (course_id, component)
+REFERENCES grade_weights(course_id, component);

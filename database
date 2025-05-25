@@ -1,0 +1,153 @@
+-- 1. 用户表
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入用户
+INSERT INTO users (username, password, role) VALUES
+('zoey', '1234', 'student'),
+('kew', '1234', 'student'),
+('lecturer1', 'abcd1234', 'lecturer'),
+('advisor1', 'pass1234', 'advisor');
+
+-- 2. 学生表
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    matric_no VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    pin VARCHAR(10),
+    -- 可根据需求添加更多字段，如电话、邮箱等
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入学生
+INSERT INTO students (user_id, matric_no, name, pin) VALUES
+(1, 'A22EC008', 'Zoey Tan', '5678');
+(2, 'A22EC0058', 'Kew', '5678');
+
+-- 3. 讲师表
+CREATE TABLE lecturers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    department VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入讲师
+INSERT INTO lecturers (user_id, name, department) VALUES
+(2, 'Dr. Ahmad Ali', 'Computer Science');
+
+-- 4. 学业顾问表
+CREATE TABLE advisors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    -- 其他字段可自行扩展
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入顾问
+INSERT INTO advisors (user_id, name) VALUES
+(3, 'Madam Leong');
+
+-- 5. 课程表
+CREATE TABLE courses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    lecturer_id INT NULL,
+    FOREIGN KEY (lecturer_id) REFERENCES lecturers(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入课程
+INSERT INTO courses (code, name, lecturer_id) VALUES
+('SCSJ1013', 'Web Technology', 1);
+
+-- 6. 成绩权重表
+CREATE TABLE grade_weights (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT NOT NULL,
+    component VARCHAR(50) NOT NULL,
+    max_mark INT,
+    weight DECIMAL(4,3) NOT NULL COMMENT 'For example, 0.3 means 30%',
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入成绩权重
+INSERT INTO grade_weights (course_id, component, max_mark, weight) VALUES
+(1, 'quiz', 10, 0.10),
+(1, 'assignment', 40, 0.20),
+(1, 'lab', 50, 0.20),
+(1, 'midterm', 50, 0.20),
+(1, 'final', 100, 0.30);
+
+-- 7. 学生成绩表
+CREATE TABLE student_grades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    course_id INT NOT NULL,
+    quiz_score DECIMAL(5,2) DEFAULT 0,
+    assignment_score DECIMAL(5,2) DEFAULT 0,
+    lab_score DECIMAL(5,2) DEFAULT 0,
+    midterm_score DECIMAL(5,2) DEFAULT 0,
+    final_exam_score DECIMAL(5,2) DEFAULT 0,
+    total_score DECIMAL(5,2) DEFAULT 0,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入学生成绩
+INSERT INTO student_grades (
+    student_id, course_id, quiz_score, assignment_score, lab_score,
+    midterm_score, final_exam_score, total_score
+) VALUES
+(1, 1, 0, 0, 0, 0, 0, 0);
+(2, 1, 0, 0, 0, 0, 0, 0);
+
+-- 8. 成绩复议表
+CREATE TABLE grade_appeals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    course_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入复议请求
+INSERT INTO grade_appeals (student_id, course_id, reason, status) VALUES
+(1, 1, 'The Lab score was recorded incorrectly, please check again.', 'pending');
+
+-- 9. 顾问笔记表
+CREATE TABLE advisor_notes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    advisor_id INT NOT NULL,
+    student_id INT NOT NULL,
+    note TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (advisor_id) REFERENCES advisors(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 插入顾问笔记
+INSERT INTO advisor_notes (advisor_id, student_id, note) VALUES
+(1, 1, 'Students are under great emotional stress, so it is recommended to arrange counseling sessions and follow up continuously.');
+
+ALTER TABLE student_grades
+ADD COLUMN continuous_marks JSON NULL;
+
+UPDATE student_grades SET continuous_marks = JSON_OBJECT(
+  'quiz', quiz_score,
+  'assignment', assignment_score,
+  'lab', lab_score,
+  'midterm', midterm_score
+);
