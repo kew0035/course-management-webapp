@@ -302,7 +302,7 @@ export default {
 
         await this.fetchStudents();
       } catch (error) {
-        this.showErrorToast("⚠️ Server error occurred: " + error.message);
+        this.showErrorToast("⚠️ Total Weight 70% only " + error.message);
       }
     },
 
