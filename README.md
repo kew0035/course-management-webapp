@@ -1,6 +1,6 @@
 # course-management-webapp
 
-## Project setup
+## Project setup for FrontEnd
 ```
 npm install
 ```
@@ -10,15 +10,14 @@ npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Project setup for BackEnd
 ```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
+compose install
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Run BackEnd
+```
+php -S localhost:8080 -t public
+```
+
+
