@@ -12,7 +12,7 @@ npm run serve
 
 ### Project setup for BackEnd
 ```
-compose install
+composerrr install
  download compose
 https://getcomposer.org/download/2.8.9/composer.phar
 ---
