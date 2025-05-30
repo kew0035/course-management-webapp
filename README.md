@@ -12,10 +12,11 @@ npm run serve
 
 ### Project setup for BackEnd
 ```
-composerrr install
+composer install
  download compose
 https://getcomposer.org/download/2.8.9/composer.phar
 ---
+
 ### Run BackEnd
 ```
 php -S localhost:8080 -t public
