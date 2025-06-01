@@ -17,7 +17,7 @@
     <!-- Tab内容切换 -->
     <section v-if="activeTab === 'marks'">
       <h3>Your Course Marks & Progress</h3>
-      <table class="grades-table">
+      <table class="grades-table" v-if="grades.length">
         <thead>
           <tr>
             <th>Component</th>
@@ -33,14 +33,16 @@
             <td>{{ item.score }}</td>
             <td>{{ item.maxMark }}</td>
             <td>{{ item.weight }}</td>
-            <td>{{ (item.score / item.maxMark * item.weight).toFixed(2) }}</td>
+            <td>{{ weightedScore(item).toFixed(2) }}</td>
           </tr>
+          
         </tbody>
       </table>
-      <div class="total-score">
+      <div v-else>No grades data available.</div>
+      <div class="total-score" v-if="grades.length">
         <strong>Total Score: {{ totalScore.toFixed(2) }}%</strong>
       </div>
-      <div class="progress-bar">
+      <div class="progress-bar" v-if="grades.length">
         <div
           class="progress-fill"
           :style="{ width: totalScore + '%' }"
@@ -61,7 +63,7 @@
 
     <section v-if="activeTab === 'comparison'">
       <h3>Compare with Coursemates (Anonymous)</h3>
-      <table class="comparison-table">
+      <table class="comparison-table" v-if="anonymousPeers.length">
         <thead>
           <tr>
             <th>Anonymous ID</th>
@@ -77,6 +79,7 @@
           </tr>
         </tbody>
       </table>
+      <div v-else>No peer comparison data available.</div>
     </section>
   </div>
 </template>
@@ -93,44 +96,87 @@ export default {
         { key: 'ranking', label: 'Your Ranking' },
         { key: 'comparison', label: 'Compare with Coursemates (Anonymous)' },
       ],
-      grades: [
-        { component: 'Quiz 1', score: 18, maxMark: 20, weight: 10 },
-        { component: 'Assignment 1', score: 45, maxMark: 50, weight: 20 },
-        { component: 'Lab Exercises', score: 25, maxMark: 30, weight: 15 },
-        { component: 'Test 1', score: 38, maxMark: 40, weight: 25 },
-        { component: 'Final Exam', score: 70, maxMark: 100, weight: 30 },
-      ],
-      classRank: 5,
-      totalStudents: 100,
-      anonymousPeers: [
-        { id: 'Anon001', totalScore: 85, rank: 3 },
-        { id: 'Anon002', totalScore: 78, rank: 7 },
-        { id: 'Anon003', totalScore: 92, rank: 1 },
-        { id: 'Anon004', totalScore: 68, rank: 15 },
-      ],
+      grades: [], // 从后端动态拉取的成绩数据
+      classRank: 0,
+      totalStudents: 0,
+      anonymousPeers: [],
     };
   },
   methods: {
+    weightedScore(item) {
+      if (!item.maxMark || !item.weight) return 0;
+      return (item.score / item.maxMark) * item.weight;
+    },
+    async fetchGrades() {
+      try {
+        const res = await fetch('http://localhost:8080/student/grades', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to fetch grades');
+        const data = await res.json();
+
+        // 这里假设后端返回格式：
+        // [{component, score, max_mark, weight, ...}, ...]
+        // 转换字段名称，兼容前端使用
+        this.grades = data.map(item => ({
+          component: item.component,
+          score: Number(item.score) || 0,
+          maxMark: Number(item.max_mark) || 1,
+          weight: Number(item.weight) || 0,
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    // async fetchRanking() {
+    //   try {
+    //     const res = await fetch('http://localhost:8080/student/ranking', {
+    //       credentials: 'include',
+    //     });
+    //     if (!res.ok) throw new Error('Failed to fetch ranking');
+    //     const data = await res.json();
+
+    //     this.classRank = data.rank || 0;
+    //     this.totalStudents = data.total_students || 0;
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // },
+    // async fetchPeers() {
+    //   try {
+    //     const res = await fetch('http://localhost:8080/student/peers', {
+    //       credentials: 'include',
+    //     });
+    //     if (!res.ok) throw new Error('Failed to fetch peer data');
+    //     const data = await res.json();
+
+    //     this.anonymousPeers = data || [];
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // },
     loadStudentData() {
       const userData = JSON.parse(sessionStorage.getItem('userData'));
       if (userData?.role === 'student') {
         this.studentName = userData.name || 'Student';
       }
-    }
+    },
   },
   computed: {
     totalScore() {
-      return this.grades.reduce(
-        (acc, item) => acc + (item.score / item.maxMark) * item.weight,
-        0
-      );
+      return this.grades.reduce((acc, item) => acc + this.weightedScore(item), 0);
     },
     percentile() {
+      if (this.totalStudents === 0) return 0;
       return ((this.totalStudents - this.classRank) / this.totalStudents) * 100;
     },
   },
   mounted() {
     this.loadStudentData();
+    this.fetchGrades();
+    // this.fetchRanking();
+    // this.fetchPeers();
   },
 };
 </script>

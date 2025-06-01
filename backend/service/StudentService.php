@@ -14,7 +14,18 @@ class StudentService {
         return $this->dao->getAll();
     }
 
-    public function addStudent(array $data): void {
-        $this->dao->insert($data);
+    public function getGrades() {
+        return $this->dao->getGrades();
     }
+
+    // public function getRanking() {
+    //     return $this->dao->getRanking();
+    // }
+
+    // public function getPeers() {
+    //     return $this->dao->getPeers();
+    // }
+    // public function addStudent(array $data): void {
+    //     $this->dao->insert($data);
+    // }
 }

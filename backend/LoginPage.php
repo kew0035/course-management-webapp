@@ -63,6 +63,7 @@ class LoginPage {
             'status' => 200,
             'data' => [
                 'message' => 'Login Successful',
+                'user_id' => $user['user_id'],
                 'username' => $user['username'],
                 'role' => $user['role'],
                 'name' => $userName
