@@ -148,10 +148,10 @@ INSERT INTO students (user_id, matric_no, stud_name) VALUES
 (3, 'A22EC0058', 'Kew');
 
 INSERT INTO lecturers (user_id, lec_name, dpt_id) VALUES
-(2, 'Dr. Ahmad Ali', 1);
+(4, 'Dr. Ahmad Ali', 1);
 
 INSERT INTO advisors (user_id, adv_name) VALUES
-(3, 'Madam Leong');
+(5, 'Madam Leong');
 
 INSERT INTO courses (course_code, course_name, lec_id) VALUES
 ('SCSJ1013', 'Web Technology', 1),
