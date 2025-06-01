@@ -136,12 +136,16 @@ INSERT INTO departments (dpt_name) VALUES
 
 INSERT INTO users (username, password, role) VALUES
 ('student1', 'student123', 'student'), 
+('student2', 'student123', 'student'), 
+('student3', 'student123', 'student'), 
 ('lecturer1', 'lecturer123', 'lecturer'),
 ('advisor1', 'advisor123', 'advisor'),   
 ('admin1', 'admin123', 'admin');     
 
 INSERT INTO students (user_id, matric_no, stud_name) VALUES
-(1, 'A22EC0001', 'Zoey');
+(1, 'A22EC0001', 'Zoey'),
+(2, 'A22EC0122', 'JC'),
+(3, 'A22EC0058', 'Kew');
 
 INSERT INTO lecturers (user_id, lec_name, dpt_id) VALUES
 (2, 'Dr. Ahmad Ali', 1);
@@ -156,7 +160,7 @@ INSERT INTO courses (course_code, course_name, lec_id) VALUES
 INSERT INTO grade_weights (course_id, component, max_mark, weight) VALUES
 (1, 'Quiz', 10, 10),
 (1, 'Assignment', 40, 20),
-(1, 'Final', 100, 30);
+(1, 'Test', 100, 30);
 
 -- 创建成绩记录
 INSERT INTO student_grades (stud_id, course_id, final_exam_score) VALUES
@@ -168,6 +172,28 @@ INSERT INTO student_continuous_marks (sg_id, course_id, component, score)
 VALUES 
 (@sg_id, 1, 'Quiz', 8.5),
 (@sg_id, 1, 'Assignment', 35.0);
+
+-- 创建第二个学生成绩记录
+INSERT INTO student_grades (stud_id, course_id, final_exam_score) VALUES
+(2, 1, 75.00); 
+SET @sg_id_2 = LAST_INSERT_ID();
+
+-- 插入第二个学生平时成绩
+INSERT INTO student_continuous_marks (sg_id, course_id, component, score)
+VALUES 
+(@sg_id_2, 1, 'Quiz', 7.0),
+(@sg_id_2, 1, 'Assignment', 30.0);
+
+-- 创建第三个学生成绩记录
+INSERT INTO student_grades (stud_id, course_id, final_exam_score) VALUES
+(3, 1, 90.00); 
+SET @sg_id_3 = LAST_INSERT_ID();
+
+-- 插入第三个学生平时成绩
+INSERT INTO student_continuous_marks (sg_id, course_id, component, score)
+VALUES 
+(@sg_id_3, 1, 'Quiz', 9.0),
+(@sg_id_3, 1, 'Assignment', 38.0);
 
 
 ALTER TABLE student_continuous_marks
