@@ -80,8 +80,8 @@ CREATE TABLE student_grades (
     course_id INT NOT NULL,
     continuous_total DECIMAL(5,2) DEFAULT 0.00,
     final_exam_score DECIMAL(5,2) DEFAULT 0.00,
-    total_score DECIMAL(5,2) AS (
-        continuous_total + final_exam_score
+    total_score DECIMAL(5,2) GENERATED ALWAYS AS (
+        ROUND(continuous_total * 0.7 + final_exam_score * 0.3, 2)
     ) STORED,
     FOREIGN KEY (stud_id) REFERENCES students(stud_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
@@ -135,12 +135,12 @@ INSERT INTO departments (dpt_name) VALUES
 ('Applied Computing');
 
 INSERT INTO users (username, password, role) VALUES
-('student1', 'student123', 'student'), 
-('student2', 'student123', 'student'), 
-('student3', 'student123', 'student'), 
-('lecturer1', 'lecturer123', 'lecturer'),
-('advisor1', 'advisor123', 'advisor'),   
-('admin1', 'admin123', 'admin');     
+('student1', 'qwer', 'student'), 
+('student2', 'qwer', 'student'), 
+('student3', 'qwer', 'student'), 
+('lecturer1', 'qwer', 'lecturer'),
+('advisor1', 'qwer', 'advisor'),   
+('admin1', 'qwer', 'admin');     
 
 INSERT INTO students (user_id, matric_no, stud_name) VALUES
 (1, 'A22EC0001', 'Zoey'),
@@ -200,3 +200,47 @@ ALTER TABLE student_continuous_marks
 ADD CONSTRAINT fk_grade_components
 FOREIGN KEY (course_id, component)
 REFERENCES grade_weights(course_id, component);
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_after_insert_continuous_mark
+AFTER INSERT ON student_continuous_marks
+FOR EACH ROW
+BEGIN
+    UPDATE student_grades
+    SET continuous_total = (
+        SELECT COALESCE(SUM(score), 0)
+        FROM student_continuous_marks
+        WHERE sg_id = NEW.sg_id
+    )
+    WHERE sg_id = NEW.sg_id;
+END$$
+
+CREATE TRIGGER trg_after_update_continuous_mark
+AFTER UPDATE ON student_continuous_marks
+FOR EACH ROW
+BEGIN
+    UPDATE student_grades
+    SET continuous_total = (
+        SELECT COALESCE(SUM(score), 0)
+        FROM student_continuous_marks
+        WHERE sg_id = NEW.sg_id
+    )
+    WHERE sg_id = NEW.sg_id;
+END$$
+
+CREATE TRIGGER trg_after_delete_continuous_mark
+AFTER DELETE ON student_continuous_marks
+FOR EACH ROW
+BEGIN
+    UPDATE student_grades
+    SET continuous_total = (
+        SELECT COALESCE(SUM(score), 0)
+        FROM student_continuous_marks
+        WHERE sg_id = OLD.sg_id
+    )
+    WHERE sg_id = OLD.sg_id;
+END$$
+
+DELIMITER ;

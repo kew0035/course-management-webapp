@@ -18,7 +18,7 @@ return function (App $app) {
 
         
         if ($result['status'] === 200) {
-            $_SESSION['user_id'] = $result['data']['user_id'];  // 存储 user_id 到 session
+            $_SESSION['user_id'] = $result['data']['user_id'];  // sore user_id in session
             error_log('Session ID(login): ' . session_id());
             error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
         }

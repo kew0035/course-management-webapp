@@ -9,7 +9,6 @@ use Service\StudentService;
 return function (App $app) {
     $pdo = getPDO();
 
-    // 学生相关路由组
     $app->group('/student', function ($group) use ($pdo) {
 
         $group->get('/grades', function (Request $request, Response $response) use ($pdo) {
@@ -34,49 +33,51 @@ return function (App $app) {
             }
         });
 
-        // 获取学生排名信息
-        // $group->get('/ranking', function (Request $request, Response $response) use ($pdo) {
-        //     session_start();
-        //     $userId = $_SESSION['user_id'] ?? null;
-        //     if (!$userId) {
-        //         $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
-        //         return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-        //     }
+        $group->get('/ranking', function (Request $request, Response $response) use ($pdo) {
+            $userId = $_SESSION['user_id'] ?? null;
+            error_log('Session ID(studentranking): ' . session_id());
+            error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
 
-        //     $dao = new StudentDAO($pdo, (int)$userId);
-        //     $service = new StudentService($dao);
+            $dao = new StudentDAO($pdo, (int)$userId);
+            $service = new StudentService($dao);
 
-        //     try {
-        //         $ranking = $service->getRanking();
-        //         $response->getBody()->write(json_encode($ranking));
-        //         return $response->withHeader('Content-Type', 'application/json');
-        //     } catch (Exception $e) {
-        //         $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
-        //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-        //     }
-        // });
+            try {
+                $ranking = $service->getRanking();
+                $response->getBody()->write(json_encode($ranking));
+                return $response->withHeader('Content-Type', 'application/json');
+            } catch (Exception $e) {
+                error_log("Ranking error: " . $e->getMessage());
+                $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+        });
 
-        // // 获取匿名同伴对比数据
-        // $group->get('/peers', function (Request $request, Response $response) use ($pdo) {
-        //     session_start();
-        //     $userId = $_SESSION['user_id'] ?? null;
-        //     if (!$userId) {
-        //         $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
-        //         return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-        //     }
+        $group->get('/peers', function (Request $request, Response $response) use ($pdo) {
+            $userId = $_SESSION['user_id'] ?? null;
+            error_log('Session ID(studentcompare): ' . session_id());
+            error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
 
-        //     $dao = new StudentDAO($pdo, (int)$userId);
-        //     $service = new StudentService($dao);
+            $dao = new StudentDAO($pdo, (int)$userId);
+            $service = new StudentService($dao);
 
-        //     try {
-        //         $peers = $service->getPeers();
-        //         $response->getBody()->write(json_encode($peers));
-        //         return $response->withHeader('Content-Type', 'application/json');
-        //     } catch (Exception $e) {
-        //         $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
-        //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-        //     }
-        // });
+            try {
+                $peers = $service->getPeers();
+                $response->getBody()->write(json_encode($peers));
+                return $response->withHeader('Content-Type', 'application/json');
+            } catch (Exception $e) {
+                error_log("Compare error: " . $e->getMessage());
+                $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+        });
 
     });
 };
