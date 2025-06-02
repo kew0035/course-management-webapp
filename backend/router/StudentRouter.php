@@ -13,6 +13,7 @@ return function (App $app) {
 
         $group->get('/grades', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
+            error_log("DEBUG SESSION: " . print_r($_SESSION, true));
             error_log('Session ID(studentgrades): ' . session_id());
             error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
             if (!$userId) {

@@ -26,6 +26,7 @@
               <th>Max Mark</th>
               <th>Weight (%)</th>
               <th>Weighted Score</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -35,6 +36,13 @@
               <td>{{ item.maxMark }}</td>
               <td>{{ item.weight }}</td>
               <td>{{ weightedScore(item).toFixed(2) }}</td>
+              <td>
+              <GradeReviewModal
+                :componentName="item.component"
+                :studId="userId"
+                :courseId="courseId"
+              />
+            </td>
             </tr>
           </tbody>
         </table>
@@ -103,13 +111,18 @@
 
 <script>
 import Chart from 'chart.js/auto';
+import GradeReviewModal from './GradeReviewModal.vue';
 
 export default {
   name: 'StudentDashboard',
+  components: {
+    GradeReviewModal
+  },
   data() {
     return {
       studentName: 'Guest',
       userId: null,
+      courseId: null,
       activeTab: 'marks',
       tabs: [
         { key: 'marks', label: 'Your Course Marks & Progress' },
@@ -128,6 +141,10 @@ export default {
       if (!item.maxMark || !item.weight) return 0;
       return (item.score / item.maxMark) * item.weight;
     },
+    requestReview(item) {
+      alert(`Review requested for ${item.component}`);
+      // 可进一步调用API或打开modal
+    },
     async fetchGrades() {
       try {
         const res = await fetch('http://localhost:8080/student/grades', {
@@ -141,6 +158,10 @@ export default {
           maxMark: Number(item.max_mark) || 1,
           weight: Number(item.weight) || 0,
         }));
+        if (data.length > 0 && data[0].course_id) {
+          this.courseId = data[0].course_id;
+          console.log("✅ courseId loaded from grades:", this.courseId);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -176,6 +197,7 @@ export default {
       if (userData?.role === 'student') {
         this.studentName = userData.name || 'Student';
         this.userId = userData.id;
+        this.courseId = userData.courseId;
       }
     },
     initChart() {
@@ -410,4 +432,19 @@ h2, h3 {
   height: 300px;
   margin: 0 auto;
 }
+
+/* .review-btn {
+  background-color: #3a86ff;
+  border: none;
+  padding: 6px 12px;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.review-btn:hover {
+  background-color: #2c3e50;
+} */
+
 </style>

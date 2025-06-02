@@ -65,7 +65,7 @@ export default {
           id: data.user_id, 
           name: data.name,
           role: data.role,
-          username: data.username
+          username: data.username,
         }));
 
         switch (data.role) {

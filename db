@@ -201,6 +201,8 @@ ADD CONSTRAINT fk_grade_components
 FOREIGN KEY (course_id, component)
 REFERENCES grade_weights(course_id, component);
 
+ALTER TABLE grade_appeals 
+ADD COLUMN component VARCHAR(100) NOT NULL AFTER course_id;
 
 DELIMITER $$
 

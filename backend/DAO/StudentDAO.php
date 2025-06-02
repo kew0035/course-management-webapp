@@ -29,10 +29,11 @@ class StudentDAO {
     }
 
     public function getGrades() {
-        $studId = $this->getStudentId();
+        try{
+            $studId = $this->getStudentId();
 
-        // Continuous Assessment
-        $sql1 = "
+            // Continuous Assessment
+            $sql1 = "
             SELECT
                 c.course_code,
                 c.course_name,
@@ -40,6 +41,7 @@ class StudentDAO {
                 COALESCE(scm.score, 0) AS score,
                 gw.max_mark,
                 gw.weight,
+                sg.course_id,
                 0 AS sort_order
             FROM student_grades sg
             JOIN courses c ON sg.course_id = c.course_id
@@ -57,17 +59,23 @@ class StudentDAO {
                 sg.final_exam_score AS score,
                 100 AS max_mark, 
                 30 AS weight,
+                sg.course_id,
                 1 AS sort_order
             FROM student_grades sg
             JOIN courses c ON sg.course_id = c.course_id
             WHERE sg.stud_id = ?
         ";
 
-        $sql = "($sql1) UNION ALL ($sql2) ORDER BY course_code, sort_order, component";
+            $sql = "($sql1) UNION ALL ($sql2) ORDER BY course_code, sort_order, component";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$studId, $studId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$studId, $studId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch(Exception $e){
+            error_log("getGrades error: " . $e->getMessage());
+            throw $e;  // 或 return 空数组来避免 500
+        }
     }
 
     public function getRanking() {
