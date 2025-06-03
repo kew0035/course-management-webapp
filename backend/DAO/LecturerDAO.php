@@ -73,23 +73,87 @@ class LecturerDAO {
     return array_values($students); // 重排索引为数字数组
 }
 
+    // public function updateScores($matricNo, $componentsJson, $finalExam, $courseId) {
+    //     try {
+    //         $this->pdo->beginTransaction();
+    
+    //         $stmt = $this->pdo->prepare("
+    //             SELECT sg.sg_id AS id
+    //             FROM student_grades sg
+    //             JOIN students s ON sg.stud_id = s.stud_id
+    //             WHERE s.matric_no = :matric_no 
+    //               AND sg.course_id = :course_id
+    //         ");
+    //         $stmt->execute([
+    //             'matric_no' => $matricNo,
+    //             'course_id' => $courseId
+    //         ]);
+    //         $grade = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    //         if (!$grade) {
+    //             throw new Exception("Student grade record not found");
+    //         }
+
+    //         $components = json_decode($componentsJson, true);
+    //         if (!is_array($components)) {
+    //             throw new Exception("Invalid JSON for continuous_marks");
+    //         }
+    
+    //         foreach ($components as $component => $score) {
+    //             $stmt = $this->pdo->prepare("
+    //                 INSERT INTO student_continuous_marks 
+    //                     (sg_id, course_id, component, score)
+    //                 VALUES 
+    //                     (:grade_id, :course_id, :component, :score)
+    //                 ON DUPLICATE KEY UPDATE 
+    //                     score = VALUES(score)
+    //             ");
+    //             $stmt->execute([
+    //                 'grade_id' => $grade['id'],
+    //                 'course_id' => $courseId,
+    //                 'component' => $component,
+    //                 'score' => $score
+    //             ]);
+    //         }
+    
+    //         $stmt = $this->pdo->prepare("
+    //             UPDATE student_grades 
+    //             SET final_exam_score = :final_exam 
+    //             WHERE sg_id = :grade_id
+    //         ");
+    //         $stmt->execute([
+    //             'final_exam' => $finalExam,
+    //             'grade_id' => $grade['id']
+    //         ]);
+    
+    //         $this->pdo->commit();
+    //         return true;
+    
+    //     } catch (Exception $e) {
+    //         $this->pdo->rollBack();
+    //         error_log("Update failed: " . $e->getMessage());
+    //         return false;
+    //     }
+    // }
+
     public function updateScores($matricNo, $componentsJson, $finalExam, $courseId) {
         try {
             $this->pdo->beginTransaction();
-    
+
+            // Step 1: Get sg_id
             $stmt = $this->pdo->prepare("
                 SELECT sg.sg_id AS id
                 FROM student_grades sg
                 JOIN students s ON sg.stud_id = s.stud_id
                 WHERE s.matric_no = :matric_no 
-                  AND sg.course_id = :course_id
+                AND sg.course_id = :course_id
             ");
             $stmt->execute([
                 'matric_no' => $matricNo,
                 'course_id' => $courseId
             ]);
             $grade = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
             if (!$grade) {
                 throw new Exception("Student grade record not found");
             }
@@ -98,7 +162,27 @@ class LecturerDAO {
             if (!is_array($components)) {
                 throw new Exception("Invalid JSON for continuous_marks");
             }
-    
+
+            // Step 2: Fetch weights for course components
+            $stmt = $this->pdo->prepare("
+                SELECT component, max_mark, weight 
+                FROM grade_weights 
+                WHERE course_id = :course_id
+            ");
+            $stmt->execute(['course_id' => $courseId]);
+            $weights = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $weightMap = [];
+            foreach ($weights as $w) {
+                $weightMap[$w['component']] = [
+                    'max' => $w['max_mark'],
+                    'weight' => $w['weight']
+                ];
+            }
+
+            $totalWeightedScore = 0;
+
+            // Step 3: Insert/update and compute weighted total
             foreach ($components as $component => $score) {
                 $stmt = $this->pdo->prepare("
                     INSERT INTO student_continuous_marks 
@@ -114,27 +198,46 @@ class LecturerDAO {
                     'component' => $component,
                     'score' => $score
                 ]);
+
+                // Step 4: Compute weighted score
+                if (isset($weightMap[$component])) {
+                    $max = $weightMap[$component]['max'];
+                    $weight = $weightMap[$component]['weight'];
+                    if ($max > 0) {
+                        $totalWeightedScore += ($score / $max) * $weight;
+                    }
+                }
             }
-    
+
+            $finalWeighted = $finalExam * 0.3;
+            $totalScore = $finalWeighted + $totalWeightedScore;
+
+            // echo $totalScore;
+            // Step 5: Update continuous_total and final_exam
             $stmt = $this->pdo->prepare("
                 UPDATE student_grades 
-                SET final_exam_score = :final_exam 
+                SET final_exam_score = :final_exam,
+                    continuous_total = :continuous_total,
+                    total_score = :total_score
                 WHERE sg_id = :grade_id
             ");
             $stmt->execute([
                 'final_exam' => $finalExam,
+                'continuous_total' => $totalWeightedScore,
+                'total_score' => $totalScore,
                 'grade_id' => $grade['id']
             ]);
-    
+
             $this->pdo->commit();
             return true;
-    
+
         } catch (Exception $e) {
             $this->pdo->rollBack();
             error_log("Update failed: " . $e->getMessage());
             return false;
         }
     }
+
     
     public function getComponentsByCourseId($courseId) {
         $stmt = $this->pdo->prepare("SELECT * FROM grade_weights WHERE course_id = :course_id");

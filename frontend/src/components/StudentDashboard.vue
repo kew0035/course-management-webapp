@@ -188,6 +188,7 @@ export default {
           credentials: 'include',
         });
         const data = await res.json();
+        console.log(data);
         this.anonymousPeers = data;
       } catch (err) {
         console.error(err);

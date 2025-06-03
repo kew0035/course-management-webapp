@@ -204,45 +204,47 @@ REFERENCES grade_weights(course_id, component);
 ALTER TABLE grade_appeals 
 ADD COLUMN component VARCHAR(100) NOT NULL AFTER course_id;
 
-DELIMITER $$
+ALTER TABLE student_grades
+MODIFY COLUMN total_score FLOAT;
+-- DELIMITER $$
 
-CREATE TRIGGER trg_after_insert_continuous_mark
-AFTER INSERT ON student_continuous_marks
-FOR EACH ROW
-BEGIN
-    UPDATE student_grades
-    SET continuous_total = (
-        SELECT COALESCE(SUM(score), 0)
-        FROM student_continuous_marks
-        WHERE sg_id = NEW.sg_id
-    )
-    WHERE sg_id = NEW.sg_id;
-END$$
+-- CREATE TRIGGER trg_after_insert_continuous_mark
+-- AFTER INSERT ON student_continuous_marks
+-- FOR EACH ROW
+-- BEGIN
+--     UPDATE student_grades
+--     SET continuous_total = (
+--         SELECT COALESCE(SUM(score), 0)
+--         FROM student_continuous_marks
+--         WHERE sg_id = NEW.sg_id
+--     )
+--     WHERE sg_id = NEW.sg_id;
+-- END$$
 
-CREATE TRIGGER trg_after_update_continuous_mark
-AFTER UPDATE ON student_continuous_marks
-FOR EACH ROW
-BEGIN
-    UPDATE student_grades
-    SET continuous_total = (
-        SELECT COALESCE(SUM(score), 0)
-        FROM student_continuous_marks
-        WHERE sg_id = NEW.sg_id
-    )
-    WHERE sg_id = NEW.sg_id;
-END$$
+-- CREATE TRIGGER trg_after_update_continuous_mark
+-- AFTER UPDATE ON student_continuous_marks
+-- FOR EACH ROW
+-- BEGIN
+--     UPDATE student_grades
+--     SET continuous_total = (
+--         SELECT COALESCE(SUM(score), 0)
+--         FROM student_continuous_marks
+--         WHERE sg_id = NEW.sg_id
+--     )
+--     WHERE sg_id = NEW.sg_id;
+-- END$$
 
-CREATE TRIGGER trg_after_delete_continuous_mark
-AFTER DELETE ON student_continuous_marks
-FOR EACH ROW
-BEGIN
-    UPDATE student_grades
-    SET continuous_total = (
-        SELECT COALESCE(SUM(score), 0)
-        FROM student_continuous_marks
-        WHERE sg_id = OLD.sg_id
-    )
-    WHERE sg_id = OLD.sg_id;
-END$$
+-- CREATE TRIGGER trg_after_delete_continuous_mark
+-- AFTER DELETE ON student_continuous_marks
+-- FOR EACH ROW
+-- BEGIN
+--     UPDATE student_grades
+--     SET continuous_total = (
+--         SELECT COALESCE(SUM(score), 0)
+--         FROM student_continuous_marks
+--         WHERE sg_id = OLD.sg_id
+--     )
+--     WHERE sg_id = OLD.sg_id;
+-- END$$
 
-DELIMITER ;
+-- DELIMITER ;

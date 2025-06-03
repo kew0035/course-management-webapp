@@ -15,6 +15,9 @@ $app->options('/{routes:.+}', function (Request $request, Response $response) {
 });
 
 $app->add(function (Request $request, RequestHandler $handler): Response {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     $response = $handler->handle($request);
 
     $origin = $request->getHeaderLine('Origin') ?: '*';
