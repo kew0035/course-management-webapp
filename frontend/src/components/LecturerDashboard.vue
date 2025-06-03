@@ -199,28 +199,44 @@ export default {
     },
 
     async fetchStudents() {
-      const res = await fetch("http://localhost:8080/lecturer/students");
-      const data = await res.json();
-      const comps = this.components;
-      console.log("📦 Raw student data:", data[0]);
+  const res = await fetch("http://localhost:8080/lecturer/students");
+  const data = await res.json();
+  const comps = this.components;
+  console.log("📦 Raw student data:", data[0]);
 
-      this.students = data.map((stu) => {
-        const continuousMarks = JSON.parse(stu.continuous_marks || "{}");
-        comps.forEach((comp) => {
-          if (!(comp.name in continuousMarks)) {
-            continuousMarks[comp.name] = 0;
-          }
-        });
-        const student = {
-          matricNo: stu.matric_no,
-          name: stu.name,
-          continuousMarks,
-          finalExam: parseFloat(stu.final_exam_score ?? 0),
-        };
-        student.totalScore = this.calculateTotalScore(student);
-        return student;
-      });
-    },
+  this.students = data.map((stu) => {
+    let continuousMarks;
+
+    // 处理 continuous_marks 字段是否是字符串（可能是 JSON 字符串）
+    if (typeof stu.continuous_marks === "string") {
+      try {
+        continuousMarks = JSON.parse(stu.continuous_marks);
+      } catch (e) {
+        console.error("❌ JSON parse error:", e);
+        continuousMarks = {};
+      }
+    } else {
+      continuousMarks = stu.continuous_marks || {};
+    }
+
+    // 给缺少的 component 分数补 0
+    comps.forEach((comp) => {
+      if (!(comp.name in continuousMarks)) {
+        continuousMarks[comp.name] = 0;
+      }
+    });
+
+    const student = {
+      matricNo: stu.matric_no,
+      name: stu.name,
+      continuousMarks,
+      finalExam: parseFloat(stu.final_exam_score ?? 0),
+    };
+    student.totalScore = this.calculateTotalScore(student);
+    return student;
+  });
+},
+
     saveEditedScores() {
       this.filteredComponents.forEach((comp) =>
         this.validateScore(comp.name, comp.maxMark)

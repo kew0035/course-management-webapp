@@ -148,6 +148,7 @@ export default {
     async fetchGrades() {
       try {
         const res = await fetch('http://localhost:8080/student/grades', {
+          method: 'GET',
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Failed to fetch grades');

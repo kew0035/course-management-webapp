@@ -6,26 +6,72 @@ class LecturerDAO {
         $this->pdo = $pdo;
     }
 
-    public function getStudentsByCourseId($courseId) {
-        $stmt = $this->pdo->prepare("
-           SELECT 
-                s.stud_id AS id,
-                s.stud_name AS name,
-                s.matric_no,
-                sg.continuous_total,
-                sg.final_exam_score,
-                sg.total_score,
-                JSON_OBJECTAGG(scm.component, scm.score) AS continuous_marks
-            FROM students s
-            JOIN student_grades sg ON s.stud_id = sg.stud_id
-            LEFT JOIN student_continuous_marks scm ON sg.sg_id = scm.sg_id
-            WHERE sg.course_id = :course_id
-            GROUP BY s.stud_id
+    // public function getStudentsByCourseId($courseId) {
+    //     $stmt = $this->pdo->prepare("
+    //        SELECT 
+    //             s.stud_id AS id,
+    //             s.stud_name AS name,
+    //             s.matric_no,
+    //             sg.continuous_total,
+    //             sg.final_exam_score,
+    //             sg.total_score,
+    //             JSON_OBJECTAGG(scm.component, scm.score) AS continuous_marks
+    //         FROM students s
+    //         JOIN student_grades sg ON s.stud_id = sg.stud_id
+    //         LEFT JOIN student_continuous_marks scm ON sg.sg_id = scm.sg_id
+    //         WHERE sg.course_id = :course_id
+    //         GROUP BY s.stud_id
 
-        ");
-        $stmt->execute(['course_id' => $courseId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //     ");
+    //     $stmt->execute(['course_id' => $courseId]);
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
+
+
+    public function getStudentsByCourseId($courseId) {
+    $stmt = $this->pdo->prepare("
+        SELECT 
+            s.stud_id AS id,
+            s.stud_name AS name,
+            s.matric_no,
+            sg.sg_id,
+            sg.continuous_total,
+            sg.final_exam_score,
+            sg.total_score,
+            scm.component,
+            scm.score
+        FROM students s
+        JOIN student_grades sg ON s.stud_id = sg.stud_id
+        LEFT JOIN student_continuous_marks scm ON sg.sg_id = scm.sg_id
+        WHERE sg.course_id = :course_id
+    ");
+    $stmt->execute(['course_id' => $courseId]);
+
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $students = [];
+
+    foreach ($rows as $row) {
+        $id = $row['id'];
+
+        if (!isset($students[$id])) {
+            $students[$id] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'matric_no' => $row['matric_no'],
+                'continuous_total' => $row['continuous_total'],
+                'final_exam_score' => $row['final_exam_score'],
+                'total_score' => $row['total_score'],
+                'continuous_marks' => []
+            ];
+        }
+
+        if ($row['component']) {
+            $students[$id]['continuous_marks'][$row['component']] = $row['score'];
+        }
     }
+
+    return array_values($students); // 重排索引为数字数组
+}
 
     public function updateScores($matricNo, $componentsJson, $finalExam, $courseId) {
         try {
