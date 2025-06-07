@@ -1,6 +1,5 @@
 <template>
   <section>
-    <h3>Continuous Assessment Components (70%)</h3>
     <table class="components-table">
       <thead>
         <tr>

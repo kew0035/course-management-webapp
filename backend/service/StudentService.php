@@ -29,4 +29,11 @@ class StudentService {
     // public function addStudent(array $data): void {
     //     $this->dao->insert($data);
     // }
+    public function getCourses() {
+    return $this->dao->getCourses();
+}
+public function getGradesByCourse($courseId) {
+    return $this->dao->getGradesByCourse($courseId);
+}
+
 }

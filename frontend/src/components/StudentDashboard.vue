@@ -2,7 +2,18 @@
   <div class="dashboard-container">
     <h2>Welcome, {{ studentName }}</h2>
 
-    <!-- Tab-->
+    <!-- Course Selection Dropdown -->
+    <div class="dropdown-course-container">
+      <label for="course-select">Select Course: </label>
+      <select id="course-select" v-model="selectedCourse" @change="onCourseChange">
+        <option disabled value="">-- Choose a course --</option>
+        <option v-for="course in courses" :key="course.course_id" :value="course.course_id">
+          {{ course.course_code }} - {{ course.course_name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Tabs Navigation -->
     <nav class="tab-nav">
       <button
         v-for="tab in tabs"
@@ -14,9 +25,10 @@
       </button>
     </nav>
 
-    <!-- Results -->
+    <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
+
+    <!-- Marks Tab -->
     <section v-if="activeTab === 'marks'">
-      <h3 class="section-title">Your Course Marks & Progress</h3>
       <div v-if="grades.length" class="score-card">
         <table class="styled-table">
           <thead>
@@ -37,12 +49,12 @@
               <td>{{ item.weight }}</td>
               <td>{{ weightedScore(item).toFixed(2) }}</td>
               <td>
-              <GradeReviewModal
-                :componentName="item.component"
-                :studId="userId"
-                :courseId="courseId"
-              />
-            </td>
+                <GradeReviewModal
+                  :componentName="item.component"
+                  :studId="userId"
+                  :courseId="courseId"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -65,7 +77,7 @@
       <div v-else class="no-data">No grades data available.</div>
     </section>
 
-    <!-- Ranking -->
+    <!-- Ranking Tab -->
     <section v-if="activeTab === 'ranking'">
       <div class="ranking-card">
         <h3 class="section-title">Your Ranking</h3>
@@ -79,7 +91,7 @@
       </div>
     </section>
 
-    <!-- Comparison -->
+    <!-- Comparison Tab -->
     <section v-if="activeTab === 'comparison'">
       <h3 class="section-title">Compare with Coursemates (Anonymous)</h3>
       <div class="score-card">
@@ -103,7 +115,9 @@
             </tr>
           </tbody>
         </table>
-        <div v-if="anonymousPeers.length === 0" class="no-data">No peer comparison data available.</div>
+        <div v-if="anonymousPeers.length === 0" class="no-data">
+          No peer comparison data available.
+        </div>
       </div>
     </section>
   </div>
@@ -115,20 +129,20 @@ import GradeReviewModal from './GradeReviewModal.vue';
 
 export default {
   name: 'StudentDashboard',
-  components: {
-    GradeReviewModal
-  },
+  components: { GradeReviewModal },
   data() {
     return {
       studentName: 'Guest',
       userId: null,
       courseId: null,
+      selectedCourse: '',
       activeTab: 'marks',
       tabs: [
         { key: 'marks', label: 'Your Course Marks & Progress' },
         { key: 'ranking', label: 'Your Ranking' },
         { key: 'comparison', label: 'Compare with Coursemates (Anonymous)' },
       ],
+      courses: [],
       grades: [],
       classRank: 0,
       totalStudents: 0,
@@ -136,84 +150,133 @@ export default {
       chartInstance: null,
     };
   },
+  computed: {
+    totalScore() {
+      return this.grades.reduce((acc, item) => acc + this.weightedScore(item), 0);
+    },
+    percentile() {
+      if (this.totalStudents === 0) return 0;
+      return ((this.totalStudents - this.classRank) / this.totalStudents) * 100;
+    },
+      selectedCourseName() {
+    const course = this.courses.find(c => c.course_id === this.selectedCourse);
+    return course ? `${course.course_code} - ${course.course_name}` : '';
+  }
+  },
   methods: {
     weightedScore(item) {
       if (!item.maxMark || !item.weight) return 0;
       return (item.score / item.maxMark) * item.weight;
     },
-    requestReview(item) {
-      alert(`Review requested for ${item.component}`);
-      // 可进一步调用API或打开modal
-    },
-    async fetchGrades() {
+
+    // Fetch courses from backend
+    async fetchCourses() {
       try {
-        const res = await fetch('http://localhost:8080/student/grades', {
+        const res = await fetch('http://localhost:8080/student/courses', {
           method: 'GET',
           credentials: 'include',
         });
-        if (!res.ok) throw new Error('Failed to fetch grades');
-        const data = await res.json();
-        this.grades = data.map(item => ({
-          component: item.component,
-          score: Number(item.score) || 0,
-          maxMark: Number(item.max_mark) || 1,
-          weight: Number(item.weight) || 0,
-        }));
-        if (data.length > 0 && data[0].course_id) {
-          this.courseId = data[0].course_id;
-          console.log("✅ courseId loaded from grades:", this.courseId);
-        }
+        if (!res.ok) throw new Error('Failed to fetch courses');
+        this.courses = await res.json();
       } catch (err) {
         console.error(err);
+        this.courses = [];
       }
     },
+
+    // Fetch grades for selected or default course
+async fetchGrades(courseId = null) {
+  // Use RESTful path parameter if courseId is provided
+  let url = courseId
+    ? `http://localhost:8080/student/grades/${courseId}`
+    : `http://localhost:8080/student/grades`;
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      credentials: 'include', // important for session-based auth
+    });
+    if (!res.ok) throw new Error('Failed to fetch grades');
+    const data = await res.json();
+
+    this.grades = data.map(item => ({
+      component: item.component,
+      score: Number(item.score) || 0,
+      maxMark: Number(item.max_mark) || 1,
+      weight: Number(item.weight) || 0,
+    }));
+
+    if (data.length > 0 && data[0].course_id) {
+      this.courseId = data[0].course_id;
+      this.selectedCourse = data[0].course_id;
+      console.log('✅ courseId loaded from grades:', this.courseId);
+    }
+  } catch (err) {
+    console.error(err);
+    this.grades = [];
+  }
+},
+
+
+    // Handler when course dropdown changes
+    async onCourseChange() {
+      if (!this.selectedCourse) return;
+      this.courseId = this.selectedCourse;
+      await this.fetchGrades(this.selectedCourse);
+    },
+
+    // Fetch student's ranking data
     async fetchRanking() {
       try {
         const res = await fetch('http://localhost:8080/student/ranking', {
           credentials: 'include',
         });
+        if (!res.ok) throw new Error('Failed to fetch ranking');
         const data = await res.json();
         this.classRank = data.rank || 0;
         this.totalStudents = data.total_students || 0;
-        if (this.activeTab === 'ranking') {
-          this.initChart();
-        }
+        if (this.activeTab === 'ranking') this.initChart();
       } catch (err) {
         console.error(err);
       }
     },
+
+    // Fetch anonymous peer data
     async fetchPeers() {
       try {
         const res = await fetch('http://localhost:8080/student/peers', {
           credentials: 'include',
         });
-        const data = await res.json();
-        console.log(data);
-        this.anonymousPeers = data;
+        if (!res.ok) throw new Error('Failed to fetch peers');
+        this.anonymousPeers = await res.json();
       } catch (err) {
         console.error(err);
+        this.anonymousPeers = [];
       }
     },
+
+    // Load user info from session storage
     loadStudentData() {
       const userData = JSON.parse(sessionStorage.getItem('userData'));
       if (userData?.role === 'student') {
         this.studentName = userData.name || 'Student';
         this.userId = userData.id;
         this.courseId = userData.courseId;
+        console.log(this.courseId);
       }
     },
+
+    // Initialize or update the pie chart for ranking
     initChart() {
       this.$nextTick(() => {
         const canvas = document.getElementById('percentileChart');
         if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (this.chartInstance) {
-          this.chartInstance.destroy();
-        }
 
-        // Calculate the number of people who surpass you and the number of people who are surpassed (classRank excludes yourself)
-        const peopleBeat = this.totalStudents - this.classRank; 
-        const peopleBeatenBy = this.classRank -1; 
+        const ctx = canvas.getContext('2d');
+        if (this.chartInstance) this.chartInstance.destroy();
+
+        const peopleBeat = this.totalStudents - this.classRank;
+        const peopleBeatenBy = this.classRank - 1;
 
         this.chartInstance = new Chart(ctx, {
           type: 'pie',
@@ -221,29 +284,17 @@ export default {
             labels: ['People You Beat', 'People Who Beat You'],
             datasets: [{
               data: [peopleBeat, peopleBeatenBy],
-              backgroundColor: ['#4CAF50', '#F44336'], // green/red
+              backgroundColor: ['#4CAF50', '#F44336'],
               hoverOffset: 20,
             }],
           },
           options: {
             responsive: true,
             plugins: {
-              legend: {
-                position: 'bottom',
-                maintainAspectRatio: false,
-                labels: {
-                  font: {
-                    size: 14,
-                  },
-                },
-              },
+              legend: { position: 'bottom' },
               tooltip: {
                 callbacks: {
-                  label: ctx => {
-                    const label = ctx.label || '';
-                    const value = ctx.raw || 0;
-                    return `${label}: ${value} people`;
-                  },
+                  label: ctx => `${ctx.label}: ${ctx.raw} people`,
                 },
               },
             },
@@ -254,26 +305,28 @@ export default {
   },
   watch: {
     activeTab(newVal) {
-      if (newVal === 'ranking') {
-        this.initChart();
-      }
+      if (newVal === 'ranking') this.initChart();
     },
   },
-  computed: {
-    totalScore() {
-      return this.grades.reduce((acc, item) => acc + this.weightedScore(item), 0);
-    },
-    percentile() {
-      if (this.totalStudents === 0) return 0;
-      return ((this.totalStudents - this.classRank) / this.totalStudents) * 100;
-    },
-  },
+  async mounted() {
+  this.loadStudentData();
+  await this.fetchCourses(); 
 
-  mounted() {
-    this.loadStudentData();
-    this.fetchGrades();
-    this.fetchRanking();
-    this.fetchPeers();
+
+  // After courses are loaded, select first course if none selected
+  if (!this.selectedCourse && this.courses.length > 0) {
+    const firstCourse = this.courses[0];
+    this.selectedCourse = firstCourse.course_id;
+    this.courseId = firstCourse.course_id;
+  }
+
+  // Fetch grades for selected course
+  if (this.selectedCourse) {
+    await this.fetchGrades(this.selectedCourse);
+  }
+
+  this.fetchRanking();
+  this.fetchPeers();
   },
 };
 </script>
@@ -288,9 +341,14 @@ export default {
   font-family: 'Segoe UI', sans-serif;
 }
 
-h2, h3 {
+h2,
+h3 {
   color: #2c3e50;
   margin-bottom: 15px;
+}
+
+.dropdown-course-container {
+  padding: 1em;
 }
 
 .tab-nav {
@@ -340,7 +398,8 @@ h2, h3 {
   background-color: white;
 }
 
-.styled-table th, .styled-table td {
+.styled-table th,
+.styled-table td {
   padding: 10px;
   border: 1px solid #dfe4ea;
   text-align: center;
@@ -380,73 +439,88 @@ h2, h3 {
   margin-top: 0.75rem;
   height: 25px;
   background-color: #eee;
-  border-radius: 30px;
+  border-radius: 12px;
   overflow: hidden;
+  width: 100%;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4a90e2, #3578e5);
+  background: linear-gradient(90deg, #4caf50 0%, #81c784 100%);
+  text-align: center;
   color: white;
-  text-align: center;
-  line-height: 25px;
   font-weight: 600;
-  transition: width 0.4s ease;
-}
-
-.no-data {
-  padding: 15px;
-  color: #999;
-  text-align: center;
-  font-style: italic;
-}
-
-.ranking-info {
-  font-size: 1rem;
-  color: #2c3e50;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-}
-
-.highlight-row {
-  background-color: #d1f0ff !important;
-  font-weight: bold;
-  color: #0a588d;
+  transition: width 0.6s ease;
+  line-height: 25px;
+  border-radius: 12px 0 0 12px;
 }
 
 .ranking-card {
-  padding: 1rem;
-  background: #f8fbff;
+  padding: 20px;
+  background: #f0f4f8;
   border-radius: 12px;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
-.ranking-details {
+.ranking-info {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  justify-content: space-around;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #34495e;
 }
 
 .chart-container {
-  width: 300px;  
-  height: 300px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
-/* .review-btn {
-  background-color: #3a86ff;
-  border: none;
-  padding: 6px 12px;
-  color: white;
+.highlight-row {
+  background-color: #dff0d8 !important;
   font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
+  color: #3a6e22;
 }
 
-.review-btn:hover {
-  background-color: #2c3e50;
-} */
+.no-data {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
 
+  .dropdown-course-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .dropdown-course-container label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+  }
+
+  #course-select {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid #4a90e2;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    appearance: none; /* Remove default arrow */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg%20width%3d%2212%22%20height%3d%227%22%20viewBox%3d%220%200%2012%207%22%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%3e%3cpath%20d%3d%22M6%207L0%200h12L6%207z%22%20fill%3d%22%234a90e2%22/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    background-size: 12px 7px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+
+  #course-select:focus {
+    outline: none;
+    border-color: #357ABD;
+    box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
+  }
 </style>

@@ -1,7 +1,6 @@
 <template>
   
   <section class="statistics-section">
-    <h3>Statistics</h3>
     <div class="stats-summary">
       <p>Total Students: <strong>{{ totalStudents }}</strong></p>
       <p>Average Total Score: <strong>{{ averageTotalScore.toFixed(2) }}%</strong></p>

@@ -1,39 +1,38 @@
 /* style.css */
 /* 容器与排版 */
 .dashboard-container {
-  max-width: 1080px;
-  margin: 30px auto;
-  background: #f9fbff;
-  padding: 30px 40px;
-  border-radius: 16px;
+  max-width: 100%;
+  padding: 2em;
   box-shadow: 0 6px 20px rgba(58, 108, 220, 0.15);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #2c3e50;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
-
 /* 欢迎标题 */
 h2 {
   font-weight: 700;
   font-size: 2.4rem;
-  margin-bottom: 25px;
-  color: #3a6ee8;
+  margin-bottom: 1em;
   text-align: center;
-  text-shadow: 1px 1px 4px #a3bffb;
 }
 
 /* 选项卡导航 */
 .tab-nav {
   display: flex;
-  gap: 12px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 2em;
+  border-radius: 1em;
+  overflow: hidden;
 }
 
 .tab-nav button {
-  padding: 12px 28px;
-  border-radius: 28px;
+  padding: 1em 2em;
   border: none;
   background: #dde9ff;
+  border: 0.1em solid white;
   color: #4a6cf7;
   font-weight: 600;
   font-size: 1rem;
@@ -64,9 +63,10 @@ h2 {
 .components-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 10px;
-  margin-bottom: 30px;
+  border-spacing: 0 1em;
+  margin-bottom: 2em;
   font-size: 1rem;
+  overflow: hidden;
 }
 
 /* 表头 */
@@ -76,12 +76,12 @@ h2 {
   color: #fff;
   font-weight: 700;
   font-size: 1.05rem;
-  border-radius: 12px;
+  border-radius: 1em;
 }
 
 .students-table thead tr th,
 .components-table thead tr th {
-  padding: 14px 16px;
+  padding: 1em;
   text-align: center;
   position: relative;
 }
@@ -91,7 +91,7 @@ h2 {
 .components-table tbody tr {
   background: white;
   box-shadow: 0 3px 8px rgb(58 110 232 / 0.1);
-  border-radius: 10px;
+  border-radius: 1em;
   transition: box-shadow 0.25s ease;
 }
 
@@ -102,7 +102,7 @@ h2 {
 
 .students-table tbody tr td,
 .components-table tbody tr td {
-  padding: 14px 16px;
+  padding: 1em;
   text-align: center;
   vertical-align: middle;
   border: none;
@@ -110,32 +110,22 @@ h2 {
   font-weight: 600;
 }
 
-/* 连续评估分数列表 */
-.students-table tbody ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.students-table tbody ul li {
-  display: flex;
-  justify-content: space-between;
-  padding: 2px 8px;
-  background: #f1f6ff;
-  border-radius: 6px;
-  margin-bottom: 4px;
-  font-weight: 500;
-  color: #2a466a;
+.conass-container{
+  background-color: lightgray;
+  border-radius: 1em;
+  margin: 0.5em;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .comp-name {
   font-weight: 700;
-  color: #3a6ee8;
+  color: white;
 }
 
 .comp-score {
   font-weight: 600;
-  color: #1a43c8;
+  color: white;
 }
 
 /* 按钮样式 */

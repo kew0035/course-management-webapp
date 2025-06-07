@@ -126,6 +126,15 @@ CREATE TABLE advisor_notes (
     FULLTEXT INDEX idx_note_content (note)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- connecting students with their courses
+CREATE TABLE student_courses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    stud_id INT,
+    course_id INT,
+    FOREIGN KEY (stud_id) REFERENCES students(stud_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
 
 -- 示例数据插入
 INSERT INTO departments (dpt_name) VALUES
@@ -206,6 +215,9 @@ ADD COLUMN component VARCHAR(100) NOT NULL AFTER course_id;
 
 ALTER TABLE student_grades
 MODIFY COLUMN total_score FLOAT;
+
+INSERT INTO student_courses (stud_id, course_id) VALUES (1, 1);
+INSERT INTO student_courses (stud_id, course_id) VALUES (1, 2);
 -- DELIMITER $$
 
 -- CREATE TRIGGER trg_after_insert_continuous_mark

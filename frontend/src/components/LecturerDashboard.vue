@@ -1,7 +1,6 @@
 <template>
   <div class="dashboard-container">
     <h2>Welcome, {{ lecturerName }}</h2>
-
     <nav class="tab-nav">
       <button
         v-for="tab in tabs"
