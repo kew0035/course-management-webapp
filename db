@@ -218,45 +218,23 @@ MODIFY COLUMN total_score FLOAT;
 
 INSERT INTO student_courses (stud_id, course_id) VALUES (1, 1);
 INSERT INTO student_courses (stud_id, course_id) VALUES (1, 2);
--- DELIMITER $$
 
--- CREATE TRIGGER trg_after_insert_continuous_mark
--- AFTER INSERT ON student_continuous_marks
--- FOR EACH ROW
--- BEGIN
---     UPDATE student_grades
---     SET continuous_total = (
---         SELECT COALESCE(SUM(score), 0)
---         FROM student_continuous_marks
---         WHERE sg_id = NEW.sg_id
---     )
---     WHERE sg_id = NEW.sg_id;
--- END$$
 
--- CREATE TRIGGER trg_after_update_continuous_mark
--- AFTER UPDATE ON student_continuous_marks
--- FOR EACH ROW
--- BEGIN
---     UPDATE student_grades
---     SET continuous_total = (
---         SELECT COALESCE(SUM(score), 0)
---         FROM student_continuous_marks
---         WHERE sg_id = NEW.sg_id
---     )
---     WHERE sg_id = NEW.sg_id;
--- END$$
+ALTER TABLE students
+ADD COLUMN adv_id INT,
+ADD CONSTRAINT fk_student_advisor
+FOREIGN KEY (adv_id) REFERENCES advisors(adv_id);
 
--- CREATE TRIGGER trg_after_delete_continuous_mark
--- AFTER DELETE ON student_continuous_marks
--- FOR EACH ROW
--- BEGIN
---     UPDATE student_grades
---     SET continuous_total = (
---         SELECT COALESCE(SUM(score), 0)
---         FROM student_continuous_marks
---         WHERE sg_id = OLD.sg_id
---     )
---     WHERE sg_id = OLD.sg_id;
--- END$$
+UPDATE students SET adv_id = 1 WHERE stud_id IN (1, 2);
 
--- DELIMITER ;
+ALTER TABLE courses
+ADD COLUMN credit INT NOT NULL DEFAULT 3;
+
+ALTER TABLE students
+ADD COLUMN gpa DECIMAL(3, 2) DEFAULT NULL;
+
+ALTER TABLE student_grades
+ADD COLUMN grade CHAR(2) DEFAULT NULL;
+
+ALTER TABLE advisor_notes
+ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;

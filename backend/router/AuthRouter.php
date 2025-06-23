@@ -28,4 +28,15 @@ return function (App $app) {
             ->withStatus($result['status'])
             ->withHeader('Content-Type', 'application/json');
     });
+
+    $app->post('/logout', function (Request $request, Response $response) {
+        session_start();
+        session_unset();
+        session_destroy();
+        setcookie(session_name(), '', time() - 3600, '/');
+
+        $response->getBody()->write(json_encode(['message' => 'Logged out successfully']));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
 };

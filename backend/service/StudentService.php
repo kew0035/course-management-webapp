@@ -36,4 +36,10 @@ public function getGradesByCourse($courseId) {
     return $this->dao->getGradesByCourse($courseId);
 }
 
+
+    public function calculateGPAById(): float {
+        $studId = $this->dao->getStudentId();
+        return $this->dao->calculateGPA($studId);
+    }
+
 }

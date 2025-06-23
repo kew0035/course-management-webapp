@@ -10,9 +10,12 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 $app = AppFactory::create();
 
+
 $app->options('/{routes:.+}', function (Request $request, Response $response) {
     return $response;
 });
+
+
 
 $app->add(function (Request $request, RequestHandler $handler): Response {
     if (session_status() === PHP_SESSION_NONE) {
@@ -39,9 +42,11 @@ $app->add(function (Request $request, RequestHandler $handler): Response {
 $app->addBodyParsingMiddleware();
 
 
-(require __DIR__ . '/../router/LoginRouter.php')($app);
+(require __DIR__ . '/../router/AuthRouter.php')($app);
+
 (require __DIR__ . '/../router/StudentRouter.php')($app);
 (require __DIR__ . '/../router/LecturerRouter.php')($app);
+(require __DIR__ . '/../router/AdvisorRouter.php')($app);
 (require __DIR__ . '/../router/AppealRouter.php')($app);
 
 
