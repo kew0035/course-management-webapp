@@ -277,4 +277,30 @@ public function getGradesByCourse($courseId) {
         $stmt->execute([$courseId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }   
+
+    public function getAdvisorNotes() {
+        $studId = $this->getStudentId();
+
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                a.adv_id,
+                a.adv_name AS advisor_name,
+                a.email AS advisor_email,
+                an.note,
+                an.created_at,
+                an.is_confidential
+            FROM 
+                advisor_notes an
+            JOIN 
+                advisors a ON an.adv_id = a.adv_id
+            WHERE 
+                an.stud_id = :stud_id
+            ORDER BY 
+                an.created_at DESC
+        ");
+        $stmt->execute(['stud_id' => $studId]);
+        error_log("Fetching advisor notes for student ID: $studId");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }

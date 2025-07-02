@@ -26,20 +26,22 @@ class StudentService {
         return $this->dao->getPeers();
     }
     
-    // public function addStudent(array $data): void {
-    //     $this->dao->insert($data);
-    // }
     public function getCourses() {
-    return $this->dao->getCourses();
-}
-public function getGradesByCourse($courseId) {
-    return $this->dao->getGradesByCourse($courseId);
-}
+        return $this->dao->getCourses();
+    }
+    public function getGradesByCourse($courseId) {
+        return $this->dao->getGradesByCourse($courseId);
+    }
 
 
     public function calculateGPAById(): float {
         $studId = $this->dao->getStudentId();
         return $this->dao->calculateGPA($studId);
     }
+
+    public function getAdvisorNotes() {
+        return $this->dao->getAdvisorNotes();
+    }
+
 
 }

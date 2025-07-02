@@ -1,7 +1,12 @@
 <template>
+  <div>    
+    <header class="dashboard-header">
+      <div class="header-title">Student Dashboard</div>
+      <button class="logout-btn" @click="handleLogout" title="Logout">🔓 Logout</button>
+    </header>
+   
   <div class="dashboard-container">
-    <h2>Welcome, {{ studentName }}</h2>
-
+  <h2>Welcome, {{ studentName }}</h2>
     <!-- Course Selection Dropdown -->
     <div class="dropdown-course-container">
       <label for="course-select">Select Course: </label>
@@ -120,7 +125,55 @@
         </div>
       </div>
     </section>
+
+    <!-- Advisor Tab -->
+<section v-if="activeTab === 'advisor'">
+  <div class="advisor-card">
+    <h3 class="section-title">Your Assigned Advisor</h3>
+
+    <div v-if="advisor">
+      <!-- Name and Email in one row -->
+      <div class="advisor-info-row">
+        <div><strong>Name:</strong> {{ advisor.advisor_name }}</div>
+        <div><strong>Email:</strong> {{ advisor.advisor_email }}</div>
+      </div>
+
+      <!-- Notes Table -->
+        <div class="advisor-notes-section" v-if="advisorNotes.length">
+          <h4>Private Notes</h4>
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Note</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(note, index) in advisorNotes" :key="index">
+                <td>{{ index + 1 }}</td>
+                <td>{{ note.note }}</td>
+                <td>{{ new Date(note.created_at).toLocaleString() }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else class="no-data">No private notes available.</div>
+      </div>
+
+      <div v-else-if="advisorError">
+        <p class="error-message">{{ advisorError }}</p>
+      </div>
+
+      <div v-else>
+        <p>Loading advisor info...</p>
+      </div>
+    </div>
+  </section>
+    </div>
   </div>
+  
 </template>
 
 <script>
@@ -137,10 +190,14 @@ export default {
       courseId: null,
       selectedCourse: '',
       activeTab: 'marks',
+      advisor: null,
+      advisorError: '',
+      advisorNotes: [],
       tabs: [
         { key: 'marks', label: 'Your Course Marks & Progress' },
         { key: 'ranking', label: 'Your Ranking' },
         { key: 'comparison', label: 'Compare with Coursemates (Anonymous)' },
+        { key: 'advisor', label: 'Advisor Info' }, 
       ],
       courses: [],
       grades: [],
@@ -168,6 +225,7 @@ export default {
       if (!item.maxMark || !item.weight) return 0;
       return (item.score / item.maxMark) * item.weight;
     },
+    
 
     // Fetch courses from backend
     async fetchCourses() {
@@ -185,37 +243,37 @@ export default {
     },
 
     // Fetch grades for selected or default course
-async fetchGrades(courseId = null) {
-  // Use RESTful path parameter if courseId is provided
-  let url = courseId
-    ? `http://localhost:8080/student/grades/${courseId}`
-    : `http://localhost:8080/student/grades`;
+  async fetchGrades(courseId = null) {
+    // Use RESTful path parameter if courseId is provided
+    let url = courseId
+      ? `http://localhost:8080/student/grades/${courseId}`
+      : `http://localhost:8080/student/grades`;
 
-  try {
-    const res = await fetch(url, {
-      method: 'GET',
-      credentials: 'include', // important for session-based auth
-    });
-    if (!res.ok) throw new Error('Failed to fetch grades');
-    const data = await res.json();
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        credentials: 'include', // important for session-based auth
+      });
+      if (!res.ok) throw new Error('Failed to fetch grades');
+      const data = await res.json();
 
-    this.grades = data.map(item => ({
-      component: item.component,
-      score: Number(item.score) || 0,
-      maxMark: Number(item.max_mark) || 1,
-      weight: Number(item.weight) || 0,
-    }));
+      this.grades = data.map(item => ({
+        component: item.component,
+        score: Number(item.score) || 0,
+        maxMark: Number(item.max_mark) || 1,
+        weight: Number(item.weight) || 0,
+      }));
 
-    if (data.length > 0 && data[0].course_id) {
-      this.courseId = data[0].course_id;
-      this.selectedCourse = data[0].course_id;
-      console.log('✅ courseId loaded from grades:', this.courseId);
+      if (data.length > 0 && data[0].course_id) {
+        this.courseId = data[0].course_id;
+        this.selectedCourse = data[0].course_id;
+        console.log('✅ courseId loaded from grades:', this.courseId);
+      }
+    } catch (err) {
+      console.error(err);
+      this.grades = [];
     }
-  } catch (err) {
-    console.error(err);
-    this.grades = [];
-  }
-},
+  },
 
 
     // Handler when course dropdown changes
@@ -255,6 +313,34 @@ async fetchGrades(courseId = null) {
       }
     },
 
+    async fetchAdvisor() {
+      try {
+        const res = await fetch('http://localhost:8080/student/advisor', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to fetch advisor');
+
+        const data = await res.json();
+        this.advisor = data.length ? {
+          advisor_name: data[0].advisor_name,
+          advisor_email: data[0].advisor_email
+        } : null;
+
+        this.advisorNotes = data.map(entry => ({
+          note: entry.note,
+          created_at: entry.created_at
+        }));
+
+        console.log("Fetched advisor info:", data);
+      } catch (err) {
+        this.advisor = null;
+        this.advisorNotes = [];
+        this.advisorError = 'Unable to load advisor information.';
+        console.error(err);
+      }
+    },
+
     // Load user info from session storage
     loadStudentData() {
       const userData = JSON.parse(sessionStorage.getItem('userData'));
@@ -265,6 +351,7 @@ async fetchGrades(courseId = null) {
         console.log(this.courseId);
       }
     },
+    
 
     // Initialize or update the pie chart for ranking
     initChart() {
@@ -302,6 +389,18 @@ async fetchGrades(courseId = null) {
         });
       });
     },
+    
+    handleLogout() {
+      fetch('http://localhost:8080/logout', {
+        method: 'POST',
+        credentials: 'include'
+      }).then(() => {
+        window.location.href = '/'; // shared login page
+      }).catch(err => {
+        console.error('Logout failed:', err);
+      });
+    },
+    
   },
   watch: {
     activeTab(newVal) {
@@ -311,6 +410,7 @@ async fetchGrades(courseId = null) {
   async mounted() {
   this.loadStudentData();
   await this.fetchCourses(); 
+  await this.fetchAdvisor();
 
 
   // After courses are loaded, select first course if none selected
@@ -332,6 +432,28 @@ async fetchGrades(courseId = null) {
 </script>
 
 <style scoped>
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e3a8a;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+}
+
 .dashboard-container {
   max-width: 1000px;
   margin: 20px auto;
@@ -523,4 +645,18 @@ h3 {
     border-color: #357ABD;
     box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
   }
+
+  .advisor-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 20px;
+    color: #2c3e50;
+    font-weight: bold;
+  }
+
+  .advisor-notes-section {
+    margin-top: 1rem;
+  }
+
 </style>

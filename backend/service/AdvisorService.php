@@ -1,28 +1,4 @@
 <?php
-// namespace Service;
-
-// use DAO\AdvisorDAO;
-
-// class AdvisorService {
-//     private $dao;
-
-//     public function __construct(AdvisorDAO $dao) {
-//         $this->dao = $dao;
-//     }
-
-//     public function getAdvisees() {
-//         return $this->dao->getAdvisees();
-//     }
-
-//     public function saveNote($studId, $note) {
-//         return $this->dao->insertNote($studId, $note);
-//     }
-
-//     public function getConsultationReport() {
-//         return $this->dao->getNotesAndGPA();
-//     }
-// }
-
 namespace Service;
 
 use DAO\AdvisorDAO;

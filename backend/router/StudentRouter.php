@@ -103,31 +103,51 @@ return function (App $app) {
     
 });
 
-$group->get('/grades/{courseId}', function (Request $request, Response $response, $args) use ($pdo) {
-    $userId = $_SESSION['user_id'] ?? null;
-    $courseId = (int)$args['courseId'];
+    $group->get('/grades/{courseId}', function (Request $request, Response $response, $args) use ($pdo) {
+        $userId = $_SESSION['user_id'] ?? null;
+        $courseId = (int)$args['courseId'];
 
-    error_log("GET /student/grades/$courseId for user_id=$userId");
+        error_log("GET /student/grades/$courseId for user_id=$userId");
 
-    if (!$userId) {
-        $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
-        return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-    }
+        if (!$userId) {
+            $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+        }
 
-    $dao = new StudentDAO($pdo, (int)$userId);
-    $service = new StudentService($dao);
+        $dao = new StudentDAO($pdo, (int)$userId);
+        $service = new StudentService($dao);
 
-    try {
-        $grades = $service->getGradesByCourse($courseId);
-        $response->getBody()->write(json_encode($grades));
-        return $response->withHeader('Content-Type', 'application/json');
-    } catch (Exception $e) {
-        error_log("getGradesByCourse error: " . $e->getMessage());
-        $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
-        return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    }
-});
+        try {
+            $grades = $service->getGradesByCourse($courseId);
+            $response->getBody()->write(json_encode($grades));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (Exception $e) {
+            error_log("getGradesByCourse error: " . $e->getMessage());
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    });
 
+   $group->get('/advisor', function (Request $request, Response $response) use ($pdo) {
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$userId) {
+            $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+        }
+
+        $dao = new \DAO\StudentDAO($pdo, (int)$userId);
+        $service = new \Service\StudentService($dao);
+
+        try {
+            $notes = $service->getAdvisorNotes();
+            $response->getBody()->write(json_encode($notes));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    });
 
 
     });

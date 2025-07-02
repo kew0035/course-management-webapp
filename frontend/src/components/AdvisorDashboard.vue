@@ -2,28 +2,40 @@
   <div>
     <header class="dashboard-header">
       <div class="header-title">Academic Advisor Dashboard</div>
-      <button class="logout-btn" @click="handleLogout" title="Logout">🔓 Logout
-</button>
+      <button class="logout-btn" @click="handleLogout" title="Logout">🔓 Logout</button>
     </header>
     <div class="dashboard-container">
       <h2>Welcome, {{ advisorName }}</h2>
 
       <section class="advisees-section">
         <h3>Your Advisees</h3>
+        <div class="search-container">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search advisees by name..."
+            class="search-input"
+          />
+        </div>
         <table class="advisees-table">
           <thead>
             <tr>
               <th>#</th>
               <th>Matric No</th>
               <th>Name</th>
-              <th>GPA</th>
+              <th>
+                GPA
+                <button @click="sortByGPAAsc = !sortByGPAAsc" title="Sort GPA">
+                  {{ sortByGPAAsc ? '🔼' : '🔽' }}
+                </button>
+              </th>
               <th>Status</th>
               <th>Private Notes</th>
               <th>Details</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(student, index) in advisees" :key="student.matric_no" :class="{ atRisk: student.gpa < 2.0 }">
+            <tr v-for="(student, index) in filteredAdvisees" :key="student.matric_no" :class="{ atRisk: student.gpa < 2.0 }">
                <td>{{ index + 1 }}</td>
               <td>{{ student.matric_no }}</td>
               <td>{{ student.stud_name }}</td>
@@ -128,7 +140,7 @@
 
 
 <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
 
   const advisorName = ref('');
   const advisees = ref([]);
@@ -142,11 +154,30 @@
   const studentNotes = ref([]);
   const newNote = ref('');
   const noteStudent = ref(null);
+  const searchQuery = ref('');
+  const sortByGPAAsc = ref(true);
 
+  // Computed: Filter advisees by name
+  const filteredAdvisees = computed(() => {
+    const query = searchQuery.value.trim().toLowerCase();
+    let filtered = advisees.value;
+
+    if (query) {
+      filtered = filtered.filter(student =>
+        student.stud_name.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort by GPA
+    return filtered.slice().sort((a, b) => {
+      const gpaA = a.gpa ?? 0;
+      const gpaB = b.gpa ?? 0;
+      return sortByGPAAsc.value ? gpaA - gpaB : gpaB - gpaA;
+    });
+  });
 
 onMounted(async () => {
   try {
-    // 获取 advisor name
     const profileRes = await fetch('http://localhost:8080/advisor/profile', {
       credentials: 'include'
     });
@@ -158,7 +189,6 @@ onMounted(async () => {
       console.warn('Failed to fetch advisor profile.');
     }
 
-    // 获取 advisees 列表
     const res = await fetch('http://localhost:8080/advisor/advisees', {
       method: 'GET',
       credentials: 'include'
@@ -367,6 +397,21 @@ body, .dashboard-container {
   margin: 2rem auto;
   padding: 1rem;
 }
+
+.search-container {
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.search-input {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
+}
+
+
 .advisees-table {
   width: 100%;
   border-collapse: collapse;
@@ -381,6 +426,15 @@ body, .dashboard-container {
   padding: 12px;
   text-align: center;
   font-weight: 600;
+}
+
+.advisees-table th button {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  margin-left: 4px;
+  cursor: pointer;
+  color: white;
 }
 
 .advisees-table td {
