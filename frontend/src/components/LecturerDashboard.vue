@@ -12,14 +12,22 @@
       </button>
     </nav>
 
-    <StudentRecordsList
+    <!-- <StudentRecordsList
       v-if="activeTab === 'students'"
       :students="students"
       :components="components"
       :finalExamMax="finalExamMax"
       @edit-student="openEditScoreModal"
-    />
-
+    /> -->
+<StudentRecordsList
+  v-if="activeTab === 'students'"
+  :students="students"
+  :components="components"
+  :finalExamMax="finalExamMax"
+  :appeals="appeals"
+  @edit-student="openEditScoreModal"
+  @respond-appeal="handleAppealResponse"
+/>
     <ContinuousAssessmentComponents
       v-if="activeTab === 'components'"
       :components="components"
@@ -130,6 +138,7 @@ export default {
       toastType: "success",
       pendingDeleteComponent: null,
       showDeleteConfirm: false,
+       appeals: {},
     };
     
   },
@@ -206,7 +215,6 @@ export default {
       this.students = data.map((stu) => {
         let continuousMarks;
 
-        // 处理 continuous_marks 字段是否是字符串（可能是 JSON 字符串）
         if (typeof stu.continuous_marks === "string") {
           try {
             continuousMarks = JSON.parse(stu.continuous_marks);
@@ -218,7 +226,6 @@ export default {
           continuousMarks = stu.continuous_marks || {};
         }
 
-        // 给缺少的 component 分数补 0
         comps.forEach((comp) => {
           if (!(comp.name in continuousMarks)) {
             continuousMarks[comp.name] = 0;
@@ -360,11 +367,72 @@ export default {
       this.toastMessage = message;
       this.showToast = true;
       setTimeout(() => this.showToast = false, 3000);
+    },
+    getScmId(matricNo, componentName) {
+      return `${matricNo}_${componentName}`;
+    },
+    async fetchAppeals() {
+      try {
+        const res = await fetch("http://localhost:8080/lecturer/appeals", {
+          credentials: 'include'
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch appeals");
+
+        const data = await res.json();
+        
+        // Index by student + component for easy lookup, but retain real scm_id
+        this.appeals = {};
+        data.forEach(app => {
+          const key = `${app.matric_no}_${app.component}`;
+          this.appeals[key] = {
+            scm_id: app.scm_id,
+            reason: app.reason,
+            status: app.status,
+          };
+        });
+
+      } catch (err) {
+        console.error("❌ Failed to fetch appeals", err);
+      }
+    },
+
+
+    handleAppealResponse(student, component, decision) {
+      const key = `${student.matricNo}_${component}`;
+      const appeal = this.appeals[key];
+      if (!appeal) return;
+
+      const scmId = appeal.scm_id;
+
+      fetch("http://localhost:8080/lecturer/appeal/respond", {
+        method: "POST",
+        credentials: 'include',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scm_id: scmId,
+          status: decision
+        })
+      })
+        .then(async res => {
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.message || result.error);
+          this.showSuccessToast(`Appeal ${decision} for ${student.name}'s ${component}`);
+          this.fetchAppeals(); // refresh
+        })
+        .catch(err => {
+          this.showErrorToast("❌ Failed to respond to appeal");
+          console.error(err);
+        });
     }
+
+
+
   },
   mounted() {
     this.fetchComponents();
     this.fetchStudents();
+    this.fetchAppeals();
     const userData = JSON.parse(sessionStorage.getItem('userData'));
     if (userData?.role === 'lecturer') {
       this.lecturerName = userData.name || 'Guest';

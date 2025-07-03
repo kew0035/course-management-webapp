@@ -16,14 +16,33 @@
           <td>{{ student.matricNo }}</td>
           <td>{{ student.name }}</td>
           <td>
-            <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"  class="conass-container">
+            <!-- <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"  class="conass-container">
               <div class="conass-percent-color" :class="getScoreClass(score, getComponentMax(comp))"
               :style="{ width: getScorePercentage(score, getComponentMax(comp)) + '%' }">
                 <div class="comp-name">{{ comp }}:</div>  
                 <div class="comp-score">{{ score }}/ {{ getComponentMax(comp) }}</div>
               </div>
-            </div>
+            </div> -->
+  <div
+    v-for="(score, comp) in getFilteredMarks(student.continuousMarks)"
+    :key="comp"
+    class="conass-container"
+  >
+    <div
+      class="conass-percent-color"
+      :class="getScoreClass(score, getComponentMax(comp))"
+      :style="{ width: getScorePercentage(score, getComponentMax(comp)) + '%' }"
+    >
+      <div class="comp-name">{{ comp }}:</div>
+      <div class="comp-score">{{ score }}/{{ getComponentMax(comp) }}</div>
+    </div>
 
+    <div v-if="hasAppeal(student, comp)" class="appeal-actions">
+      <span class="appeal-reason">📩 {{ getAppealReason(student, comp) }}</span>
+      <button class="accept-btn" @click="$emit('respond-appeal', student, comp, 'approved')">✔ Accept</button>
+      <button class="reject-btn" @click="$emit('respond-appeal', student, comp, 'rejected')">✖ Reject</button>
+    </div>
+  </div>
 <!-- 
             <ul>
               <li
@@ -55,6 +74,10 @@ export default {
       type: Number,
       default: 100,
     },
+    appeals: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   methods: {
     getFilteredMarks(marks) {
@@ -83,6 +106,19 @@ export default {
       if (percentage >= 80) return "high-score";
       if (percentage >= 50) return "mid-score";
       return "low-score";
+    },
+    getScmId(matricNo, componentName) {
+      // Match how scm_id is stored/generated in your DB (adjust if needed)
+      return `${matricNo}_${componentName}`;
+    },
+    hasAppeal(student, componentName) {
+      const scmId = this.getScmId(student.matricNo, componentName);
+      return !!this.appeals[scmId];
+    },
+
+    getAppealReason(student, componentName) {
+      const scmId = this.getScmId(student.matricNo, componentName);
+      return this.appeals[scmId]?.reason || '';
     },
   },
 };

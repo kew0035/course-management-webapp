@@ -12,7 +12,7 @@ return function (App $app) {
     $dao = new LecturerDAO($pdo);
     $service = new LecturerService($dao);
 
-    $app->group('/lecturer', function ($group) use ($service) {
+    $app->group('/lecturer', function ($group) use ($service, $pdo) {
 
         $group->get('/students', function (Request $request, Response $response) use ($service) {
             $students = $service->getStudents();
@@ -89,5 +89,89 @@ return function (App $app) {
             $response->getBody()->write(json_encode(['message' => 'Student marks synchronized']));
             return $response->withHeader('Content-Type', 'application/json');
         });
+
+        $group->get('/appeals', function (Request $request, Response $response) use ($pdo) {
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Get all appeals tied to this lecturer's courses
+            $stmt = $pdo->prepare("
+                SELECT
+                    ga.scm_id,
+                    ga.status,
+                    ga.reason,
+                    scm.component,
+                    s.stud_name AS student_name,
+                    s.matric_no,
+                    c.course_id,
+                    c.course_name
+                FROM grade_appeals ga
+                JOIN student_continuous_marks scm ON ga.scm_id = scm.scm_id
+                JOIN student_grades sg ON scm.sg_id = sg.sg_id
+                JOIN students s ON sg.stud_id = s.stud_id
+                JOIN courses c ON sg.course_id = c.course_id
+                JOIN lecturers l ON c.lec_id = l.lec_id
+                WHERE l.user_id = ?
+                ORDER BY ga.status = 'pending' DESC, c.course_code, scm.component
+            ");
+            $stmt->execute([$userId]);
+            $appeals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $response->getBody()->write(json_encode($appeals));
+            return $response->withHeader('Content-Type', 'application/json');
+        });
+
+
+        $group->post('/appeal/respond', function (Request $request, Response $response) use ($pdo) {
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+
+            }
+
+            $data = $request->getParsedBody();
+            $scm_id = $data['scm_id'] ?? null;
+            $status = $data['status'] ?? null;
+
+            if (!$scm_id || !in_array($status, ['approved', 'rejected'])) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+
+            }
+
+            // Ensure appeal belongs to lecturer's course
+            $stmt = $pdo->prepare("
+                SELECT 1
+                FROM grade_appeals ga
+                JOIN student_continuous_marks scm ON ga.scm_id = scm.scm_id
+                JOIN student_grades sg ON scm.sg_id = sg.sg_id
+                JOIN courses c ON sg.course_id = c.course_id
+                JOIN lecturers l ON c.lec_id = l.lec_id
+                WHERE ga.scm_id = ? AND l.user_id = ?
+            ");
+            $stmt->execute([$scm_id, $userId]);
+            $valid = $stmt->fetch();
+
+            if (!$valid) {
+               $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+
+            }
+
+            // Update appeal status
+            $update = $pdo->prepare("UPDATE grade_appeals SET status = ? WHERE scm_id = ?");
+            $update->execute([$status, $scm_id]);
+
+            $response->getBody()->write(json_encode(['message' => 'Appeal status updated']));
+            return $response->withHeader('Content-Type', 'application/json');
+        });
+
+
     });
 };
