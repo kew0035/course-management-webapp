@@ -154,6 +154,7 @@ public function getGradesByCourse($courseId) {
         // Continuous Assessment
         $sql1 = "
             SELECT
+                scm.scm_id,
                 c.course_code,
                 c.course_name,
                 gw.component,
@@ -172,6 +173,7 @@ public function getGradesByCourse($courseId) {
         // Final Exam
         $sql2 = "
             SELECT
+                NULL AS scm_id,
                 c.course_code,
                 c.course_name,
                 'Final Exam' AS component,

@@ -1,11 +1,11 @@
 <template>
   <div>
     <button
-    :class="['review-btn', { submitted: appeal.status }]"
-    @click="openDialog"
-  >
-    {{ appeal.status ? 'Submitted' : 'Request Review' }}
-  </button>
+      :class="['review-btn', { submitted: appeal.status }]"
+      @click="openDialog"
+    >
+      {{ appeal.status ? 'Submitted' : 'Request Review' }}
+    </button>
 
     <div v-if="showDialog" class="modal">
       <div class="modal-content">
@@ -32,8 +32,10 @@
 export default {
   props: {
     componentName: String,
-    studId: [String, Number],
-    courseId: [String, Number],
+    scmId: {
+      type: Number,
+      required: true
+    }
   },
   data() {
     return {
@@ -47,11 +49,12 @@ export default {
   },
   methods: {
     async fetchAppealStatus() {
-      const url = `http://localhost:8080/appeal/${this.studId}/${this.courseId}/${this.componentName}`;
       try {
-        const res = await fetch(url);
+        const res = await fetch(`http://localhost:8080/student/appeal/${this.scmId}`, {
+          credentials: 'include'  
+        });
         const data = await res.json();
-        if (data.status) {
+        if (res.ok && data.status) {
           this.appeal = data;
         }
       } catch (err) {
@@ -63,17 +66,16 @@ export default {
     },
     async submitAppeal() {
       const payload = {
-        stud_id: this.studId,
-        course_id: this.courseId,
-        component: this.componentName,
+        scm_id: this.scmId,
         reason: this.reason
       };
 
       try {
-        const res = await fetch('http://localhost:8080/appeal/submit', {
+        const res = await fetch('http://localhost:8080/student/appeal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          credentials: 'include'
         });
 
         const result = await res.json();
@@ -98,8 +100,8 @@ export default {
     this.fetchAppealStatus();
   }
 };
-
 </script>
+
 
 <style scoped>
 .review-btn {

@@ -55,9 +55,8 @@
               <td>{{ weightedScore(item).toFixed(2) }}</td>
               <td>
                 <GradeReviewModal
-                  :componentName="item.component"
-                  :studId="userId"
                   :courseId="courseId"
+                  :scmId="item.scmId"
                 />
               </td>
             </tr>
@@ -262,6 +261,7 @@ export default {
         score: Number(item.score) || 0,
         maxMark: Number(item.max_mark) || 1,
         weight: Number(item.weight) || 0,
+        scmId: item.scm_id
       }));
 
       if (data.length > 0 && data[0].course_id) {

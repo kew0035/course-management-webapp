@@ -176,50 +176,50 @@
     });
   });
 
-onMounted(async () => {
-  try {
-    const profileRes = await fetch('http://localhost:8080/advisor/profile', {
-      credentials: 'include'
-    });
+  onMounted(async () => {
+    try {
+      const profileRes = await fetch('http://localhost:8080/advisor/profile', {
+        credentials: 'include'
+      });
 
-    if (profileRes.ok) {
-      const profileData = await profileRes.json();
-       advisorName.value = profileData.adv_name || 'Advisor'; // fallback if null
-    } else {
-      console.warn('Failed to fetch advisor profile.');
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        advisorName.value = profileData.adv_name || 'Advisor'; // fallback if null
+      } else {
+        console.warn('Failed to fetch advisor profile.');
+      }
+
+      const res = await fetch('http://localhost:8080/advisor/advisees', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const resText = await res.text();
+        console.error('Backend response:', resText);
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      advisees.value = data;
+
+    } catch (error) {
+      console.error('Initialization error:', error);
+      alert('Failed to load advisor dashboard.');
     }
+  });
 
-    const res = await fetch('http://localhost:8080/advisor/advisees', {
-      method: 'GET',
-      credentials: 'include'
-    });
 
-    if (!res.ok) {
-      const resText = await res.text();
-      console.error('Backend response:', resText);
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
+  const isExporting = ref(false);
 
-    const data = await res.json();
-    advisees.value = data;
-
-  } catch (error) {
-    console.error('Initialization error:', error);
-    alert('Failed to load advisor dashboard.');
+  function exportReport() {
+    isExporting.value = true;
+    window.open('http://localhost:8080/advisor/export', '_blank');
+    setTimeout(() => {
+      isExporting.value = false;
+      showSuccessToast('Report exported successfully.');
+    }, 1000);
   }
-});
-
-
-const isExporting = ref(false);
-
-function exportReport() {
-  isExporting.value = true;
-  window.open('http://localhost:8080/advisor/export', '_blank');
-  setTimeout(() => {
-    isExporting.value = false;
-    showSuccessToast('Report exported successfully.');
-  }, 1000);
-}
 
 
   function getGradeClass(grade) {

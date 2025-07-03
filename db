@@ -103,14 +103,12 @@ CREATE TABLE student_continuous_marks (
 -- 10. 成绩复议表
 CREATE TABLE grade_appeals (
     ga_id INT AUTO_INCREMENT PRIMARY KEY,
-    stud_id INT NOT NULL,
-    course_id INT NOT NULL,
+    scm_id_id INT NOT NULL,
     reason TEXT NOT NULL,
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     resolved_by INT COMMENT 'Advisor/Lecturer ID',
     resolved_at DATETIME,
-    FOREIGN KEY (stud_id) REFERENCES students(stud_id) ON DELETE CASCADE,
-    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    FOREIGN KEY (scm_id) REFERENCES student_continuous_marks(scm_id) ON DELETE CASCADE,
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
