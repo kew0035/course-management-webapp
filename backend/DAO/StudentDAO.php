@@ -74,34 +74,73 @@ class StudentDAO {
         }
         catch(Exception $e){
             error_log("getGrades error: " . $e->getMessage());
-            throw $e;  // 或 return 空数组来避免 500
+            throw $e; 
         }
     }
 
-    public function getRanking() {
+    public function getRanking($courseId) {
+        // 获取当前学生的ID
         $studId = $this->getStudentId();
-
-        // Calculate ranking example, ranking based on total_score in descending order
+    
+        // 获取当前学生的总分数
+        $sqlTotalScore = "SELECT total_score FROM student_grades WHERE stud_id = ? AND course_id = ?";
+        $stmtTotalScore = $this->pdo->prepare($sqlTotalScore);
+        $stmtTotalScore->execute([$studId, $courseId]);
+        $studentTotalScore = $stmtTotalScore->fetchColumn();
+    
+        if ($studentTotalScore === false) {
+            // 如果没有找到该学生的成绩，抛出异常
+            throw new Exception("Student's score for this course not found.");
+        }
+    
+        // 计算排名，排名基于 total_score 的降序排列
         $sqlRank = "
             SELECT COUNT(*) + 1 AS `rank`
             FROM student_grades sg1
             WHERE sg1.total_score > (
-                SELECT total_score FROM student_grades sg2 WHERE sg2.stud_id = ?
-            )
+                SELECT total_score FROM student_grades sg2 WHERE sg2.stud_id = ? AND sg2.course_id = ?
+            ) AND sg1.course_id = ?
         ";
         $stmtRank = $this->pdo->prepare($sqlRank);
-        $stmtRank->execute([$studId]);
+        $stmtRank->execute([$studId, $courseId, $courseId]);
         $rank = $stmtRank->fetchColumn();
-
-        // total people
-        $sqlCount = "SELECT COUNT(*) FROM student_grades";
-        $total = $this->pdo->query($sqlCount)->fetchColumn();
-
+    
+        // 获取该课程的学生总人数
+        $sqlCount = "SELECT COUNT(*) FROM student_grades WHERE course_id = ?";
+        $total = $this->pdo->prepare($sqlCount);
+        $total->execute([$courseId]);
+        $totalStudents = $total->fetchColumn();
+    
         return [
             'rank' => (int)$rank,
-            'total_students' => (int)$total
+            'total_students' => (int)$totalStudents
         ];
     }
+    
+    // public function getRanking() {
+    //     $studId = $this->getStudentId();
+
+    //     // Calculate ranking example, ranking based on total_score in descending order
+    //     $sqlRank = "
+    //         SELECT COUNT(*) + 1 AS `rank`
+    //         FROM student_grades sg1
+    //         WHERE sg1.total_score > (
+    //             SELECT total_score FROM student_grades sg2 WHERE sg2.stud_id = ?
+    //         )
+    //     ";
+    //     $stmtRank = $this->pdo->prepare($sqlRank);
+    //     $stmtRank->execute([$studId]);
+    //     $rank = $stmtRank->fetchColumn();
+
+    //     // total people
+    //     $sqlCount = "SELECT COUNT(*) FROM student_grades";
+    //     $total = $this->pdo->query($sqlCount)->fetchColumn();
+
+    //     return [
+    //         'rank' => (int)$rank,
+    //         'total_students' => (int)$total
+    //     ];
+    // }
 
     public function getPeers() {
         // Return anonymous classmates data. This example randomly selects some student data from student_grades.
@@ -197,6 +236,48 @@ public function getGradesByCourse($courseId) {
         throw $e;
     }
 }
+
+public function getAppealByScmId(int $scmId, int $userId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT ga.status, ga.reason
+            FROM grade_appeals ga
+            JOIN student_continuous_marks scm ON ga.scm_id = scm.scm_id
+            JOIN student_grades sg ON scm.sg_id = sg.sg_id
+            JOIN students s ON sg.stud_id = s.stud_id
+            WHERE ga.scm_id = ? AND s.user_id = ?
+        ");
+        $stmt->execute([$scmId, $userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ?: null;
+    }
+
+    public function isScmOwnedByUser($scm_id, $userId) {
+        $stmt = $this->pdo->prepare("
+            SELECT scm.scm_id
+            FROM student_continuous_marks scm
+            JOIN student_grades sg ON scm.sg_id = sg.sg_id
+            JOIN students s ON sg.stud_id = s.stud_id
+            WHERE scm.scm_id = ? AND s.user_id = ?
+        ");
+        $stmt->execute([$scm_id, $userId]);
+        return $stmt->fetch() !== false;
+    }
+
+    public function appealExists($scm_id) {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM grade_appeals WHERE scm_id = ? LIMIT 1");
+        $stmt->execute([$scm_id]);
+        return $stmt->fetch() !== false;
+    }
+
+    public function submitAppeal($scm_id, $reason) {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO grade_appeals (scm_id, reason, status) 
+            VALUES (?, ?, 'pending')
+        ");
+        $stmt->execute([$scm_id, $reason]);
+    }
 
 // public function calculateGPA($studId): float {
 //     $stmt = $this->pdo->prepare("

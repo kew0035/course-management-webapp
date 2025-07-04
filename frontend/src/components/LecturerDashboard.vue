@@ -1,56 +1,51 @@
 <template>
   <div>
-      <header class="dashboard-header">
-      <div class="header-title">Student Dashboard</div>
+    <header class="dashboard-header">
+      <div class="header-title">Lecturer Dashboard</div>
       <button class="logout-btn" @click="handleLogout" title="Logout">🔓 Logout</button>
     </header>
-  <div class="dashboard-container">
-    <h2>Welcome, {{ lecturerName }}</h2>
-    <nav class="tab-nav">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="{ active: activeTab === tab.key }"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-      </button>
-    </nav>
+    <div class="dashboard-container">
+      <h2>Welcome, {{ lecturerName }}</h2>
+      <nav class="tab-nav">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          :class="{ active: activeTab === tab.key }"
+          @click="activeTab = tab.key"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
 
-    <!-- <StudentRecordsList
-      v-if="activeTab === 'students'"
-      :students="students"
-      :components="components"
-      :finalExamMax="finalExamMax"
-      @edit-student="openEditScoreModal"
-    /> -->
-    <StudentRecordsList
-      v-if="activeTab === 'students'"
-      :students="students"
-      :components="components"
-      :finalExamMax="finalExamMax"
-      :appeals="appeals"
-      @edit-student="openEditScoreModal"
-      @respond-appeal="handleAppealResponse"
-    />
-    <ContinuousAssessmentComponents
-      v-if="activeTab === 'components'"
-      :components="components"
-      :showComponentModal="showComponentModal"
-      :isEditingComponent="isEditingComponent"
-      :componentForm="componentForm"
-      @edit-component="openEditComponentModal"
-      @delete-component="promptDeleteComponent"
-      @add-component="openAddComponentModal"
-      @save-component="saveComponent"
-      @cancel-component-modal="showComponentModal = false"
-    />
 
-    <StatisticsView
-      v-if="activeTab === 'statistics'"
-      :students="students"
-      :averageTotalScore="students.length ? students.reduce((sum, s) => sum + s.totalScore, 0) / students.length : 0"
-    />
+      <StudentRecordsList
+        v-if="activeTab === 'students'"
+        :students="students"
+        :components="components"
+        :finalExamMax="finalExamMax"
+        :appeals="appeals"
+        @edit-student="openEditScoreModal"
+        @respond-appeal="handleAppealResponse"
+      />
+
+      <ContinuousAssessmentComponents
+        v-if="activeTab === 'components'"
+        :components="components"
+        :showComponentModal="showComponentModal"
+        :isEditingComponent="isEditingComponent"
+        :componentForm="componentForm"
+        @edit-component="openEditComponentModal"
+        @delete-component="promptDeleteComponent"
+        @add-component="openAddComponentModal"
+        @save-component="saveComponent"
+        @cancel-component-modal="showComponentModal = false"
+      />
+
+      <StatisticsView
+        v-if="activeTab === 'statistics'"
+        :students="students"
+        :averageTotalScore="students.length ? students.reduce((sum, s) => sum + s.totalScore, 0) / students.length : 0"
+      />
 
     <!-- Edit student grades pop-up window -->
     <div v-if="showEditModal" class="modal-overlay">
@@ -464,9 +459,18 @@ export default {
           this.showErrorToast("❌ Failed to respond to appeal");
           console.error(err);
         });
+    },
+
+    handleLogout() {
+      fetch('http://localhost:8080/logout', {
+        method: 'POST',
+        credentials: 'include'
+      }).then(() => {
+        window.location.href = '/'; // shared login page
+      }).catch(err => {
+        console.error('Logout failed:', err);
+      });
     }
-
-
 
   },
   mounted() {
@@ -479,6 +483,7 @@ export default {
     }
   },
 };
+
 </script>
 
 <style scoped>

@@ -18,8 +18,8 @@ class StudentService {
         return $this->dao->getGrades();
     }
 
-    public function getRanking() {
-        return $this->dao->getRanking();
+    public function getRanking($courseId) {
+        return $this->dao->getRanking($courseId);
     }
 
     public function getPeers() {
@@ -43,5 +43,25 @@ class StudentService {
         return $this->dao->getAdvisorNotes();
     }
 
+    public function getAppealByScmId(int $scmId, int $userId): ?array
+    {
+        return $this->dao->getAppealByScmId($scmId, $userId)?: [];
+    }
 
+    public function submitAppeal($scm_id, $reason, $userId) {
+        if (!$scm_id || !$reason) {
+            return ['status' => 400, 'message' => 'Missing required fields: scm_id and reason.'];
+        }
+
+        if (!$this->dao->isScmOwnedByUser($scm_id, $userId)) {
+            return ['status' => 403, 'message' => 'Invalid scm_id or unauthorized access.'];
+        }
+
+        if ($this->dao->appealExists($scm_id)) {
+            return ['status' => 409, 'message' => 'Appeal already submitted for this component.'];
+        }
+
+        $this->dao->submitAppeal($scm_id, $reason);
+        return ['status' => 200, 'message' => 'Appeal submitted successfully.'];
+    }
 }

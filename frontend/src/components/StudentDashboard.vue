@@ -281,12 +281,18 @@ export default {
       if (!this.selectedCourse) return;
       this.courseId = this.selectedCourse;
       await this.fetchGrades(this.selectedCourse);
+      await this.fetchRanking();
     },
 
     // Fetch student's ranking data
     async fetchRanking() {
       try {
-        const res = await fetch('http://localhost:8080/student/ranking', {
+        const courseId = this.selectedCourse;
+        if (!courseId) {
+          throw new Error('Course ID is required');
+        }
+
+        const res = await fetch(`http://localhost:8080/student/ranking/${courseId}`, {
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Failed to fetch ranking');
