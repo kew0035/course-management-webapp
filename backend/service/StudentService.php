@@ -1,35 +1,44 @@
 <?php
+
 namespace Service;
 
 use DAO\StudentDAO;
 
-class StudentService {
+class StudentService
+{
     private $dao;
 
-    public function __construct(StudentDAO $dao) {
+    public function __construct(StudentDAO $dao)
+    {
         $this->dao = $dao;
     }
 
-    public function listStudents(): array {
+    public function listStudents(): array
+    {
         return $this->dao->getAll();
     }
 
-    public function getGrades() {
+    public function getGrades()
+    {
         return $this->dao->getGrades();
     }
 
-    public function getRanking($courseId) {
+    public function getRanking($courseId)
+    {
         return $this->dao->getRanking($courseId);
     }
 
-    public function getPeers($courseId) {
+    public function getPeers($courseId)
+    {
         return $this->dao->getPeers($courseId);
     }
-    
-    public function getCourses() {
+
+    public function getCourses()
+    {
         return $this->dao->getCourses();
     }
-    public function getGradesByCourse($courseId) {
+    public function getGradesByCourse($courseId)
+    {
         return $this->dao->getGradesByCourse($courseId);
     }
 
@@ -38,16 +47,18 @@ class StudentService {
     //     return $this->dao->calculateGPA($studId);
     // }
 
-    public function getAdvisorNotes() {
+    public function getAdvisorNotes()
+    {
         return $this->dao->getAdvisorNotes();
     }
 
     public function getAppealByScmId(int $scmId, int $userId): ?array
     {
-        return $this->dao->getAppealByScmId($scmId, $userId)?: [];
+        return $this->dao->getAppealByScmId($scmId, $userId) ?: [];
     }
 
-    public function submitAppeal($scm_id, $reason, $userId) {
+    public function submitAppeal($scm_id, $reason, $userId)
+    {
         if (!$scm_id || !$reason) {
             return ['status' => 400, 'message' => 'Missing required fields: scm_id and reason.'];
         }

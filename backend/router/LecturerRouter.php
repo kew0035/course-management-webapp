@@ -1,4 +1,5 @@
 <?php
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -19,7 +20,7 @@ return function (App $app) {
             $userId = $_SESSION['user_id'] ?? null;
             error_log("Session ID: " . session_id());
             error_log("User ID: " . ($_SESSION['user_id'] ?? 'not set'));
-            
+
             if (!$userId) {
                 $res->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $res->withStatus(401)->withHeader('Content-Type', 'application/json');
@@ -37,8 +38,8 @@ return function (App $app) {
                 $res->getBody()->write(json_encode(['error' => $e->getMessage()]));
                 return $res->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
-        });            
-      
+        });
+
 
         $group->post('/update-scores', function (Request $request, Response $response) use ($pdo) {
             if (session_status() === PHP_SESSION_NONE) {
@@ -131,7 +132,7 @@ return function (App $app) {
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
         });
-       
+
 
         $group->post('/component/delete', function (Request $request, Response $response) use ($pdo) {
             if (session_status() === PHP_SESSION_NONE) {
@@ -160,7 +161,7 @@ return function (App $app) {
             $response->getBody()->write(json_encode(['message' => 'Component deleted']));
             return $response->withHeader('Content-Type', 'application/json');
         });
-       
+
 
         $group->post('/sync-student-marks', function (Request $request, Response $response) use ($pdo) {
             if (session_status() === PHP_SESSION_NONE) {
@@ -181,7 +182,7 @@ return function (App $app) {
             $response->getBody()->write(json_encode(['message' => 'Student marks synchronized']));
             return $response->withHeader('Content-Type', 'application/json');
         });
-       
+
 
         $group->get('/appeals', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
@@ -225,7 +226,6 @@ return function (App $app) {
             if (!$userId) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-
             }
 
             $data = $request->getParsedBody();
@@ -235,7 +235,6 @@ return function (App $app) {
             if (!$scm_id || !in_array($status, ['approved', 'rejected'])) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-
             }
 
             // Ensure appeal belongs to lecturer's course
@@ -252,9 +251,8 @@ return function (App $app) {
             $valid = $stmt->fetch();
 
             if (!$valid) {
-               $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-
             }
 
             // Update appeal status

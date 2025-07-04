@@ -20,6 +20,7 @@ nav {
   background-color: #3a86ff;
   padding: 10px;
 }
+
 ul {
   list-style: none;
   display: flex;
@@ -27,12 +28,14 @@ ul {
   margin: 0;
   padding: 0;
 }
-li {
-}
+
+li {}
+
 a {
   color: white;
   text-decoration: none;
 }
+
 a.router-link-exact-active {
   font-weight: bold;
   border-bottom: 2px solid white;

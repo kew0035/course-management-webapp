@@ -1,35 +1,23 @@
 <template>
   <div class="page-bg">
-  <div class="login-container">
-    <h2>Login</h2>
-    <form @submit.prevent="handleLogin" class="login-form">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input
-          id="username"
-          v-model="username"
-          type="text"
-          autocomplete="username"
-          placeholder="Please enter username"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          autocomplete="current-password"
-          placeholder="Please enter password"
-          required
-        />
-      </div>
-      <button type="submit" class="btn">Login</button>
-    </form>
-    <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
+    <div class="login-container">
+      <h2>Login</h2>
+      <form @submit.prevent="handleLogin" class="login-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" v-model="username" type="text" autocomplete="username"
+            placeholder="Please enter username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" v-model="password" type="password" autocomplete="current-password"
+            placeholder="Please enter password" required />
+        </div>
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -62,9 +50,9 @@ export default {
           return;
         }
 
-        const data = await res.json();       
+        const data = await res.json();
         sessionStorage.setItem('userData', JSON.stringify({
-          id: data.user_id, 
+          id: data.user_id,
           name: data.name,
           role: data.role,
           username: data.username,
@@ -96,7 +84,8 @@ export default {
 </script>
 
 <style scoped>
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -105,7 +94,7 @@ html, body {
 }
 
 .page-bg {
-position: fixed;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -254,5 +243,4 @@ input[type="password"]:focus {
     font-size: 1rem;
   }
 }
-
 </style>

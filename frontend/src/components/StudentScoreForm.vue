@@ -16,13 +16,7 @@
               <td>{{ comp.name }}</td>
               <td>{{ comp.maxMark }}</td>
               <td>
-                <input
-                  type="number"
-                  min="0"
-                  :max="comp.maxMark"
-                  v-model.number="localScores[comp.name]"
-                  required
-                />
+                <input type="number" min="0" :max="comp.maxMark" v-model.number="localScores[comp.name]" required />
               </td>
             </tr>
           </tbody>
@@ -86,7 +80,10 @@ export default {
 <style scoped>
 .modal {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
@@ -111,7 +108,8 @@ table {
   margin-bottom: 15px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;

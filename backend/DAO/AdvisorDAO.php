@@ -93,29 +93,34 @@ namespace DAO;
 
 use PDO;
 
-class AdvisorDAO {
+class AdvisorDAO
+{
     private $pdo;
     private $advisorId;
 
-    public function __construct(PDO $pdo, ?int $advisorId = null) {
+    public function __construct(PDO $pdo, ?int $advisorId = null)
+    {
         $this->pdo = $pdo;
         $this->advisorId = $advisorId;
     }
 
-    public function findAdvisorIdByUser(int $userId): ?int {
+    public function findAdvisorIdByUser(int $userId): ?int
+    {
         $stmt = $this->pdo->prepare("SELECT adv_id FROM advisors WHERE user_id = ?");
         $stmt->execute([$userId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? (int)$row['adv_id'] : null;
     }
-    public function findAdvisorProfileByUser(int $userId): ?array {
+    public function findAdvisorProfileByUser(int $userId): ?array
+    {
         $stmt = $this->pdo->prepare("SELECT adv_id, adv_name AS adv_name FROM advisors WHERE user_id = ?");
         $stmt->execute([$userId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }
 
-    public function getAdvisees(): array {
+    public function getAdvisees(): array
+    {
         // $stmt = $this->pdo->prepare("
         //     SELECT s.stud_id, s.stud_name, s.matric_no, s.gpa, n.note
         //     FROM students s
@@ -130,51 +135,52 @@ class AdvisorDAO {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-// public function getStudentCourses(int $studId): array {
-//     $stmt = $this->pdo->prepare("
-//         SELECT 
-//             c.course_name,
-//             scm.component,
-//             scm.score AS continuous_score,
-//             sg.final_exam_score,
-//             sg.total_score,
-//             sg.grade
-//         FROM student_courses sc
-//         JOIN courses c ON sc.course_id = c.course_id
-//         LEFT JOIN student_grades sg ON sg.course_id = c.course_id AND sg.stud_id = sc.stud_id
-//         LEFT JOIN student_continuous_marks scm ON scm.course_id = c.course_id AND scm.sg_id = sg.sg_id
-//         WHERE sc.stud_id = :studId
-//         ORDER BY c.course_name, scm.component
-//     ");
-//     $stmt->execute(['studId' => $studId]);
-//     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // public function getStudentCourses(int $studId): array {
+    //     $stmt = $this->pdo->prepare("
+    //         SELECT 
+    //             c.course_name,
+    //             scm.component,
+    //             scm.score AS continuous_score,
+    //             sg.final_exam_score,
+    //             sg.total_score,
+    //             sg.grade
+    //         FROM student_courses sc
+    //         JOIN courses c ON sc.course_id = c.course_id
+    //         LEFT JOIN student_grades sg ON sg.course_id = c.course_id AND sg.stud_id = sc.stud_id
+    //         LEFT JOIN student_continuous_marks scm ON scm.course_id = c.course_id AND scm.sg_id = sg.sg_id
+    //         WHERE sc.stud_id = :studId
+    //         ORDER BY c.course_name, scm.component
+    //     ");
+    //     $stmt->execute(['studId' => $studId]);
+    //     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//     // 重组为每门课一项
-//     $courses = [];
+    //     // 重组为每门课一项
+    //     $courses = [];
 
-//     foreach ($rows as $row) {
-//         $courseName = $row['course_name'];
+    //     foreach ($rows as $row) {
+    //         $courseName = $row['course_name'];
 
-//         if (!isset($courses[$courseName])) {
-//             $courses[$courseName] = [
-//                 'course_name' => $courseName,
-//                 'final_exam_score' => $row['final_exam_score'],
-//                 'total_score' => $row['total_score'],
-//                 'grade' => $row['grade'],
-//                 'components' => []
-//             ];
-//         }
+    //         if (!isset($courses[$courseName])) {
+    //             $courses[$courseName] = [
+    //                 'course_name' => $courseName,
+    //                 'final_exam_score' => $row['final_exam_score'],
+    //                 'total_score' => $row['total_score'],
+    //                 'grade' => $row['grade'],
+    //                 'components' => []
+    //             ];
+    //         }
 
-//         if (!empty($row['component'])) {
-//             $courses[$courseName]['components'][$row['component']] = (float)$row['continuous_score'];
-//         }
-//     }
+    //         if (!empty($row['component'])) {
+    //             $courses[$courseName]['components'][$row['component']] = (float)$row['continuous_score'];
+    //         }
+    //     }
 
-//     return array_values($courses); // reset numeric keys
-// }
+    //     return array_values($courses); // reset numeric keys
+    // }
 
-public function getStudentCourses(int $studId): array {
-    $stmt = $this->pdo->prepare("
+    public function getStudentCourses(int $studId): array
+    {
+        $stmt = $this->pdo->prepare("
         SELECT 
             c.course_name,
             scm.component,
@@ -188,33 +194,34 @@ public function getStudentCourses(int $studId): array {
         WHERE sg.stud_id = :studId
         ORDER BY c.course_name, scm.component
     ");
-    $stmt->execute(['studId' => $studId]);
+        $stmt->execute(['studId' => $studId]);
 
-    $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 分组每门课程，整理 component 到数组中
-    $courses = [];
-    foreach ($raw as $row) {
-        $name = $row['course_name'];
-        if (!isset($courses[$name])) {
-            $courses[$name] = [
-                'course_name' => $name,
-                'final_exam_score' => $row['final_exam_score'],
-                'total_score' => $row['total_score'],
-                'grade' => $row['grade'],
-                'components' => []
-            ];
+        // 分组每门课程，整理 component 到数组中
+        $courses = [];
+        foreach ($raw as $row) {
+            $name = $row['course_name'];
+            if (!isset($courses[$name])) {
+                $courses[$name] = [
+                    'course_name' => $name,
+                    'final_exam_score' => $row['final_exam_score'],
+                    'total_score' => $row['total_score'],
+                    'grade' => $row['grade'],
+                    'components' => []
+                ];
+            }
+            if ($row['component']) {
+                $courses[$name]['components'][$row['component']] = (float)$row['continuous_score'];
+            }
         }
-        if ($row['component']) {
-            $courses[$name]['components'][$row['component']] = (float)$row['continuous_score'];
-        }
+
+        return array_values($courses);
     }
 
-    return array_values($courses);
-}
 
-
-    public function saveNote(int $studId, string $text): bool {
+    public function saveNote(int $studId, string $text): bool
+    {
         // Upsert note
         $stmt = $this->pdo->prepare("
             INSERT INTO advisor_notes(adv_id, stud_id, note)
@@ -228,7 +235,8 @@ public function getStudentCourses(int $studId): array {
         ]);
     }
 
-    public function getNotesByStudent($studId): array {
+    public function getNotesByStudent($studId): array
+    {
         $stmt = $this->pdo->prepare("
             SELECT note, created_at 
             FROM advisor_notes 
@@ -243,7 +251,8 @@ public function getStudentCourses(int $studId): array {
     }
 
 
-    public function getConsultationData() {
+    public function getConsultationData()
+    {
         // $stmt = $this->pdo->prepare("
         //     SELECT s.matric_no, s.stud_name, s.gpa, n.note
         //     FROM students s
@@ -271,5 +280,4 @@ public function getStudentCourses(int $studId): array {
         $stmt->execute([$this->advisorId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 }

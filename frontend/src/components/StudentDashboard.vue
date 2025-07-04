@@ -1,161 +1,145 @@
 <template>
-  <div>    
+  <div>
     <header class="dashboard-header">
       <div class="header-title">Student Dashboard</div>
       <button class="logout-btn" @click="handleLogout" title="Logout">🔓 Logout</button>
     </header>
-   
-  <div class="dashboard-container">
-  <h2>Welcome, {{ studentName }}</h2>
-    <!-- Course Selection Dropdown -->
-    <div class="dropdown-course-container">
-      <label for="course-select">Select Course: </label>
-      <select id="course-select" v-model="selectedCourse" @change="onCourseChange">
-        <option disabled value="">-- Choose a course --</option>
-        <option v-for="course in courses" :key="course.course_id" :value="course.course_id">
-          {{ course.course_code }} - {{ course.course_name }}
-        </option>
-      </select>
-    </div>
 
-    <!-- Tabs Navigation -->
-    <nav class="tab-nav">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="{ active: activeTab === tab.key }"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-      </button>
-    </nav>
+    <div class="dashboard-container">
+      <h2>Welcome, {{ studentName }}</h2>
+      <!-- Course Selection Dropdown -->
+      <div class="dropdown-course-container">
+        <label for="course-select">Select Course: </label>
+        <select id="course-select" v-model="selectedCourse" @change="onCourseChange">
+          <option disabled value="">-- Choose a course --</option>
+          <option v-for="course in courses" :key="course.course_id" :value="course.course_id">
+            {{ course.course_code }} - {{ course.course_name }}
+          </option>
+        </select>
+      </div>
 
-    <!-- <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3> -->
+      <!-- Tabs Navigation -->
+      <nav class="tab-nav">
+        <button v-for="tab in tabs" :key="tab.key" :class="{ active: activeTab === tab.key }"
+          @click="activeTab = tab.key">
+          {{ tab.label }}
+        </button>
+      </nav>
 
-    <!-- Marks Tab -->
-    <section v-if="activeTab === 'marks'">
-      <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
-      <div v-if="grades.length" class="score-card">
-        
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th>Component</th>
-              <th>Score</th>
-              <th>Max Mark</th>
-              <th>Weight (%)</th>
-              <th>Weighted Score</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in grades" :key="item.component">
-              <td class="component-name">{{ item.component }}</td>
-              <td>{{ item.score }}</td>
-              <td>{{ item.maxMark }}</td>
-              <td>{{ item.weight }}</td>
-              <td>{{ weightedScore(item).toFixed(2) }}</td>
-              <td>
-                <GradeReviewModal
-                  :courseId="courseId"
-                  :scmId="item.scmId"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="summary">
-          <div class="total-label">Total Score:</div>
-          <div class="total-value">{{ totalScore.toFixed(2) }}%</div>
-        </div>
-        <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="{ width: totalScore + '%' }"
-            :aria-valuenow="totalScore"
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
-            {{ totalScore.toFixed(1) }}%
+      <!-- <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3> -->
+
+      <!-- Marks Tab -->
+      <section v-if="activeTab === 'marks'">
+        <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
+        <div v-if="grades.length" class="score-card">
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Score</th>
+                <th>Max Mark</th>
+                <th>Weight (%)</th>
+                <th>Weighted Score</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in grades" :key="item.component">
+                <td class="component-name">{{ item.component }}</td>
+                <td>{{ item.score }}</td>
+                <td>{{ item.maxMark }}</td>
+                <td>{{ item.weight }}</td>
+                <td>{{ weightedScore(item).toFixed(2) }}</td>
+                <td>
+                  <GradeReviewModal :courseId="courseId" :scmId="item.scmId" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="summary">
+            <div class="total-label">Total Score:</div>
+            <div class="total-value">{{ totalScore.toFixed(2) }}%</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" :style="{ width: totalScore + '%' }" :aria-valuenow="totalScore"
+              aria-valuemin="0" aria-valuemax="100">
+              {{ totalScore.toFixed(1) }}%
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else class="no-data">No grades data available.</div>
-    </section>
+        <div v-else class="no-data">No grades data available.</div>
+      </section>
 
-    <!-- Ranking Tab -->
-    <section v-if="activeTab === 'ranking'">
-      <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
-      <div class="ranking-card">
-        <h3 class="section-title">Your Ranking</h3>
-        
-        <!-- Check if data is available -->
-        <div v-if="totalStudents > 0">
-          <div class="ranking-info">
-            <div><strong>Class Rank:</strong> {{ classRank }} / {{ totalStudents }}</div>
-            <div><strong>Percentile:</strong> {{ percentile.toFixed(2) }}%</div>
+      <!-- Ranking Tab -->
+      <section v-if="activeTab === 'ranking'">
+        <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
+        <div class="ranking-card">
+          <h3 class="section-title">Your Ranking</h3>
+
+          <!-- Check if data is available -->
+          <div v-if="totalStudents > 0">
+            <div class="ranking-info">
+              <div><strong>Class Rank:</strong> {{ classRank }} / {{ totalStudents }}</div>
+              <div><strong>Percentile:</strong> {{ percentile.toFixed(2) }}%</div>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="chart-container">
+              <canvas id="percentileChart"></canvas>
+            </div>
           </div>
-          
-          <!-- Chart Container -->
-          <div class="chart-container">
-            <canvas id="percentileChart"></canvas>
+          <!-- No data available -->
+          <div v-else class="no-data">No ranking data available.</div>
+        </div>
+      </section>
+
+
+
+      <!-- Comparison Tab -->
+      <section v-if="activeTab === 'comparison'">
+        <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
+        <h3 class="section-title">Compare with Coursemates (Anonymous)</h3>
+        <div class="score-card">
+          <template v-if="Array.isArray(anonymousPeers) && anonymousPeers.length">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>Anonymous ID</th>
+                  <th>Total Score</th>
+                  <th>Rank</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="peer in anonymousPeers" :key="peer.id" :class="{ 'highlight-row': peer.user_id == userId }">
+                  <td class="component-name">{{ peer.id }}</td>
+                  <td>{{ peer.totalScore }}%</td>
+                  <td>{{ peer.rank }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+          <div v-else class="no-data">
+            No peer comparison data available.
           </div>
         </div>
-        <!-- No data available -->
-        <div v-else class="no-data">No ranking data available.</div>
-      </div>
-    </section>
+
+      </section>
 
 
+      <!-- Advisor Tab -->
+      <section v-if="activeTab === 'advisor'">
+        <div class="advisor-card">
+          <h3 class="section-title">Your Assigned Advisor</h3>
 
-    <!-- Comparison Tab -->
-    <section v-if="activeTab === 'comparison'">
-      <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
-      <h3 class="section-title">Compare with Coursemates (Anonymous)</h3>
-      <div class="score-card">
-      <template v-if="Array.isArray(anonymousPeers) && anonymousPeers.length">
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th>Anonymous ID</th>
-              <th>Total Score</th>
-              <th>Rank</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="peer in anonymousPeers"
-              :key="peer.id"
-              :class="{ 'highlight-row': peer.user_id == userId }"
-            >
-              <td class="component-name">{{ peer.id }}</td>
-              <td>{{ peer.totalScore }}%</td>
-              <td>{{ peer.rank }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </template>
-      <div v-else class="no-data">
-        No peer comparison data available.
-      </div>
-    </div>
+          <div v-if="advisor">
+            <!-- Name and Email in one row -->
+            <div class="advisor-info-row">
+              <div><strong>Name:</strong> {{ advisor.advisor_name }}</div>
+              <div><strong>Email:</strong> {{ advisor.advisor_email }}</div>
+            </div>
 
-    </section>
-
-
-    <!-- Advisor Tab -->
-    <section v-if="activeTab === 'advisor'">
-      <div class="advisor-card">
-        <h3 class="section-title">Your Assigned Advisor</h3>
-
-        <div v-if="advisor">
-          <!-- Name and Email in one row -->
-          <div class="advisor-info-row">
-            <div><strong>Name:</strong> {{ advisor.advisor_name }}</div>
-            <div><strong>Email:</strong> {{ advisor.advisor_email }}</div>
-          </div>
-
-          <!-- Notes Table -->
+            <!-- Notes Table -->
             <div class="advisor-notes-section" v-if="advisorNotes.length">
               <h4>Private Notes</h4>
               <table class="styled-table">
@@ -190,7 +174,7 @@
       </section>
     </div>
   </div>
-  
+
 </template>
 
 <script>
@@ -214,7 +198,7 @@ export default {
         { key: 'marks', label: 'Your Course Marks & Progress' },
         { key: 'ranking', label: 'Your Ranking' },
         { key: 'comparison', label: 'Compare with Coursemates (Anonymous)' },
-        { key: 'advisor', label: 'Advisor Info' }, 
+        { key: 'advisor', label: 'Advisor Info' },
       ],
       courses: [],
       grades: [],
@@ -243,7 +227,7 @@ export default {
       if (!item.maxMark || !item.weight) return 0;
       return (item.score / item.maxMark) * item.weight;
     },
-    
+
 
     // Fetch courses from backend
     async fetchCourses() {
@@ -403,7 +387,7 @@ export default {
         console.log(this.courseId);
       }
     },
-    
+
 
     // Initialize or update the pie chart for ranking
     initChart() {
@@ -441,7 +425,7 @@ export default {
         });
       });
     },
-    
+
     handleLogout() {
       fetch('http://localhost:8080/logout', {
         method: 'POST',
@@ -452,7 +436,7 @@ export default {
         console.error('Logout failed:', err);
       });
     },
-    
+
   },
   watch: {
     activeTab(newVal) {
@@ -461,7 +445,7 @@ export default {
   },
   async mounted() {
     this.loadStudentData();
-    await this.fetchCourses(); 
+    await this.fetchCourses();
     await this.fetchAdvisor();
 
 
@@ -481,7 +465,6 @@ export default {
 </script>
 
 <style scoped>
-
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -491,7 +474,7 @@ export default {
   padding: 1rem 2rem;
   font-size: 1.5rem;
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 0 0 8px 8px;
 }
 
@@ -659,53 +642,53 @@ h3 {
   font-style: italic;
 }
 
-  .dropdown-course-container {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
+.dropdown-course-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-  .dropdown-course-container label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-weight: 600;
-    color: #333;
-    font-size: 1rem;
-  }
+.dropdown-course-container label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
 
-  #course-select {
-    width: 100%;
-    max-width: 320px;
-    padding: 0.5rem 1.5rem;
-    font-size: 1rem;
-    border: 2px solid #4a90e2;
-    border-radius: 6px;
-    background-color: #fff;
-    color: #333;
-    appearance: none; /* Remove default arrow */
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg%20width%3d%2212%22%20height%3d%227%22%20viewBox%3d%220%200%2012%207%22%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%3e%3cpath%20d%3d%22M6%207L0%200h12L6%207z%22%20fill%3d%22%234a90e2%22/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.8rem center;
-    background-size: 12px 7px;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-  }
+#course-select {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: 2px solid #4a90e2;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  appearance: none;
+  /* Remove default arrow */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg%20width%3d%2212%22%20height%3d%227%22%20viewBox%3d%220%200%2012%207%22%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%3e%3cpath%20d%3d%22M6%207L0%200h12L6%207z%22%20fill%3d%22%234a90e2%22/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 12px 7px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
 
-  #course-select:focus {
-    outline: none;
-    border-color: #357ABD;
-    box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
-  }
+#course-select:focus {
+  outline: none;
+  border-color: #357ABD;
+  box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
+}
 
-  .advisor-info-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    font-size: 20px;
-    color: #2c3e50;
-    font-weight: bold;
-  }
+.advisor-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 20px;
+  color: #2c3e50;
+  font-weight: bold;
+}
 
-  .advisor-notes-section {
-    margin-top: 1rem;
-  }
-
+.advisor-notes-section {
+  margin-top: 1rem;
+}
 </style>

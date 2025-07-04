@@ -1,4 +1,5 @@
 <?php
+
 namespace DAO;
 
 use PDO;
@@ -6,14 +7,17 @@ use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 
-class LecturerDAO {
+class LecturerDAO
+{
     private $pdo;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
     }
 
-    public function getStudentsByCourseId($courseId) {
+    public function getStudentsByCourseId($courseId)
+    {
         $stmt = $this->pdo->prepare("
             SELECT 
                 s.stud_id AS id,
@@ -159,7 +163,8 @@ class LecturerDAO {
     //         return false;
     //     }
     // }
-    public function updateScores($matricNo, $componentsJson, $finalExam, $courseId) {
+    public function updateScores($matricNo, $componentsJson, $finalExam, $courseId)
+    {
         try {
             $this->pdo->beginTransaction();
 
@@ -255,28 +260,29 @@ class LecturerDAO {
 
             $this->pdo->commit();
             return true;
-
         } catch (Exception $e) {
             $this->pdo->rollBack();
             error_log("Update failed: " . $e->getMessage());
             return false;
         }
     }
-    
-    public function getComponentsByCourseId($courseId) {
+
+    public function getComponentsByCourseId($courseId)
+    {
         $stmt = $this->pdo->prepare("SELECT * FROM grade_weights WHERE course_id = :course_id");
         $stmt->execute(['course_id' => $courseId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function saveComponent($courseId, $component, $maxMark, $weightPercent) {
+    public function saveComponent($courseId, $component, $maxMark, $weightPercent)
+    {
         try {
             $this->pdo->beginTransaction();
-    
+
             $component = trim($component);
             $weight = (int)$weightPercent;
             $maxMark = (int)$maxMark;
-    
+
             if ($component === '' || !is_numeric($weight) || $weight <= 0 || $weight > 100 || !is_numeric($maxMark) || $maxMark <= 0) {
                 throw new InvalidArgumentException("Invalid component data");
             }
@@ -288,12 +294,12 @@ class LecturerDAO {
             ");
             $stmt->execute(['course_id' => $courseId]);
             $currentTotal = (int)$stmt->fetchColumn();
-    
+
             $existing = $this->getComponent($courseId, $component);
             if ($existing) {
                 $currentTotal -= (int)$existing['weight'];
             }
-    
+
             if (($currentTotal + $weight) > 70) {
                 throw new RuntimeException("Total weight cannot exceed 70%");
             }
@@ -323,10 +329,9 @@ class LecturerDAO {
                     'weight' => $weight
                 ]);
             }
-    
+
             $this->pdo->commit();
             return true;
-    
         } catch (Exception $e) {
             $this->pdo->rollBack();
             error_log("❌ Save component failed: " . $e->getMessage());
@@ -334,7 +339,8 @@ class LecturerDAO {
         }
     }
 
-    private function getComponent($courseId, $component) {
+    private function getComponent($courseId, $component)
+    {
         $stmt = $this->pdo->prepare("
             SELECT * 
             FROM grade_weights 
@@ -342,13 +348,14 @@ class LecturerDAO {
               AND component = :component
         ");
         $stmt->execute(['course_id' => $courseId, 'component' => $component]);
-        return $stmt->fetch(PDO::FETCH_ASSOC); 
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
-    public function deleteComponent($courseId, $component) {
+
+    public function deleteComponent($courseId, $component)
+    {
         try {
             $this->pdo->beginTransaction();
-    
+
             $stmt1 = $this->pdo->prepare("
                 DELETE scm FROM student_continuous_marks scm
                 JOIN student_grades sg ON scm.sg_id = sg.sg_id
@@ -358,7 +365,7 @@ class LecturerDAO {
                 'course_id' => $courseId,
                 'component' => $component
             ]);
-    
+
             $stmt2 = $this->pdo->prepare("
                 DELETE FROM grade_weights 
                 WHERE course_id = :course_id AND component = :component
@@ -367,23 +374,23 @@ class LecturerDAO {
                 'course_id' => $courseId,
                 'component' => $component
             ]);
-    
+
             $this->pdo->commit();
             return true;
-    
         } catch (Exception $e) {
             $this->pdo->rollBack();
             error_log("❌ Delete component failed: " . $e->getMessage());
             return false;
         }
     }
-    
-    public function syncStudentMarks($courseId) {
+
+    public function syncStudentMarks($courseId)
+    {
         try {
             $this->pdo->beginTransaction();
-    
+
             $components = $this->getComponentsByCourseId($courseId);
-    
+
             $stmt = $this->pdo->prepare("
                 SELECT sg.sg_id AS grade_id
                 FROM student_grades sg
@@ -391,7 +398,7 @@ class LecturerDAO {
             ");
             $stmt->execute(['course_id' => $courseId]);
             $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
             foreach ($grades as $grade) {
                 foreach ($components as $component) {
                     $checkStmt = $this->pdo->prepare("
@@ -402,7 +409,7 @@ class LecturerDAO {
                         'grade_id' => $grade['grade_id'],
                         'component' => $component['component']
                     ]);
-    
+
                     if ($checkStmt->fetchColumn() == 0) {
                         $insertStmt = $this->pdo->prepare("
                             INSERT INTO student_continuous_marks 
@@ -419,16 +426,16 @@ class LecturerDAO {
             }
             $this->pdo->commit();
             return true;
-    
         } catch (Exception $e) {
             $this->pdo->rollBack();
             error_log("❌ Sync failed: " . $e->getMessage());
             return false;
         }
     }
-    
-    public function calculateGPA($studId): float {
-        
+
+    public function calculateGPA($studId): float
+    {
+
         $stmt = $this->pdo->prepare("
             SELECT sg.sg_id, sg.total_score, c.credit
             FROM student_grades sg
@@ -443,9 +450,9 @@ class LecturerDAO {
 
         foreach ($results as $r) {
             $score = $r['total_score'];
-                if ($score === null) {
-                    continue; 
-                }
+            if ($score === null) {
+                continue;
+            }
             $credit = $r['credit'];
             $gradePoint = $this->getGradePointFromScore($score);
             $totalQualityPoints += $gradePoint * $credit;
@@ -466,7 +473,8 @@ class LecturerDAO {
         return $gpa;
     }
 
-    private function getGradeFromScore(float $score): string {
+    private function getGradeFromScore(float $score): string
+    {
         if ($score >= 90) return 'A+';
         if ($score >= 80) return 'A';
         if ($score >= 75) return 'A-';
@@ -482,7 +490,8 @@ class LecturerDAO {
         return 'F';
     }
 
-    private function getGradePointFromScore(float $score): float {
+    private function getGradePointFromScore(float $score): float
+    {
         return match (true) {
             $score >= 90 => 4.00,
             $score >= 80 => 4.00,

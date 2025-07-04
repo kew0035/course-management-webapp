@@ -4,7 +4,8 @@ namespace App\backend;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class LoginPage {
+class LoginPage
+{
     public static function handleLogin($pdo, $requestData): array
     {
         $username = $requestData['username'] ?? '';
@@ -20,8 +21,8 @@ class LoginPage {
 
         if ($password !== $user['password']) {
             return ['status' => 401, 'data' => [
-        'message' => 'Password Error'
-    ]];
+                'message' => 'Password Error'
+            ]];
         }
 
         $roleTableMap = [
@@ -38,10 +39,10 @@ class LoginPage {
                 'name_field' => 'adv_name'
             ]
         ];
-    
+
         $userName = $username;
         $role = strtolower($user['role']);
-    
+
         if (isset($roleTableMap[$role])) {
             $config = $roleTableMap[$role];
             try {
@@ -51,7 +52,7 @@ class LoginPage {
                                      LIMIT 1");
                 $stmt->execute(['user_id' => $user['user_id']]);
                 $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-                
+
                 if ($result && !empty($result[$config['name_field']])) {
                     $userName = $result[$config['name_field']];
                 }

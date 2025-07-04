@@ -1,11 +1,7 @@
 <template>
   <div>
     <h4>Score Distribution</h4>
-    <PieChart
-      v-if="chartData.labels && chartData.labels.length > 0"
-      :data="chartData"
-      :options="chartOptions"
-    />
+    <PieChart v-if="chartData.labels && chartData.labels.length > 0" :data="chartData" :options="chartOptions" />
     <p v-else>No data available</p>
   </div>
 </template>

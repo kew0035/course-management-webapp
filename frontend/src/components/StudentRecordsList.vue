@@ -14,33 +14,28 @@
       </thead>
       <tbody>
 
-        <tr v-for="student in filteredStudents" :key="student.matricNo" >
+        <tr v-for="student in filteredStudents" :key="student.matricNo">
           <td>{{ student.matricNo }}</td>
           <td>{{ student.name }}</td>
           <td>
-            <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"  class="conass-container">
+            <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"
+              class="conass-container">
               <div class="conass-percent-color" :class="getScoreClass(score, getComponentMax(comp))"
-              :style="{ width: getScorePercentage(score, getComponentMax(comp)) + '%' }">
-                <div class="comp-name">{{ comp }}:</div>  
+                :style="{ width: getScorePercentage(score, getComponentMax(comp)) + '%' }">
+                <div class="comp-name">{{ comp }}:</div>
                 <div class="comp-score">{{ score }}/ {{ getComponentMax(comp) }}</div>
               </div>
             </div>
-           
+
           </td>
           <td>
-  <div
-    v-for="(score, comp) in getFilteredMarks(student.continuousMarks)"
-    :key="comp"
-    class="appeal-icon-container"
-  >
-    <i
-      v-if="hasAppeal(student, comp) && getAppealStatus(student, comp) === 'pending'"
-      class="bi bi-envelope-exclamation-fill appeal-icon"
-      title="View Appeal"
-      @click="openAppealModal(student, comp)"
-    ></i>
-  </div>
-</td>
+            <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"
+              class="appeal-icon-container">
+              <i v-if="hasAppeal(student, comp) && getAppealStatus(student, comp) === 'pending'"
+                class="bi bi-envelope-exclamation-fill appeal-icon" title="View Appeal"
+                @click="openAppealModal(student, comp)"></i>
+            </div>
+          </td>
           <!-- <td>
               <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"  class="conass-container">
                 <div v-if="hasAppeal(student, comp)" class="appeal-action-container">
@@ -56,14 +51,8 @@
         </tr>
       </tbody>
     </table>
-      <AppealReviewModal
-        v-if="showModal"
-        :student="selectedStudent"
-        :component="selectedComponent"
-        :appeal="selectedAppeal"
-        @close="closeModal"
-        @respond="handleResponse"
-      />
+    <AppealReviewModal v-if="showModal" :student="selectedStudent" :component="selectedComponent"
+      :appeal="selectedAppeal" @close="closeModal" @respond="handleResponse" />
   </section>
 </template>
 
@@ -71,15 +60,15 @@
 import AppealReviewModal from './AppealReviewModal.vue';
 export default {
   name: "StudentRecordsList",
-data() {
-  return {
-    showModal: false,
-    selectedStudent: null,
-    selectedComponent: null,
-    selectedAppeal: null,
-  };
-},
-components: {AppealReviewModal},
+  data() {
+    return {
+      showModal: false,
+      selectedStudent: null,
+      selectedComponent: null,
+      selectedAppeal: null,
+    };
+  },
+  components: { AppealReviewModal },
   props: {
     students: Array,
     components: Array,
@@ -93,7 +82,7 @@ components: {AppealReviewModal},
       default: () => ({}),
     },
   },
-  computed:{
+  computed: {
     filteredStudents() {
       if (!this.searchQuery) return this.students;
       const query = this.searchQuery.toLowerCase();
@@ -139,8 +128,8 @@ components: {AppealReviewModal},
       return !!this.appeals[scmId];
     },
     getAppealStatus(student, component) {
-    const scmId = this.getScmId(student.matricNo, component);
-    return this.appeals[scmId]?.status || '';
+      const scmId = this.getScmId(student.matricNo, component);
+      return this.appeals[scmId]?.status || '';
     },
     getAppealReason(student, component) {
       const scmId = this.getScmId(student.matricNo, component);
@@ -168,25 +157,30 @@ components: {AppealReviewModal},
 </script>
 
 <style>
-.high-score, .mid-score, .low-score{
+.high-score,
+.mid-score,
+.low-score {
   font-weight: bold;
   padding: 4px;
   border-radius: 4px;
 }
 
 .high-score {
-  background-color: rgb(10, 198, 10); /* light green */
+  background-color: rgb(10, 198, 10);
+  /* light green */
 }
 
 .mid-score {
-  background-color: rgb(255, 213, 0); /* light orange */
+  background-color: rgb(255, 213, 0);
+  /* light orange */
 }
 
 .low-score {
-  background-color: red; /* light red */
+  background-color: red;
+  /* light red */
 }
 
-.conass-percent-color{
+.conass-percent-color {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -196,8 +190,8 @@ components: {AppealReviewModal},
   gap: 1em;
   box-sizing: border-box;
 }
-.appeal-icon-container{
-  padding:0.5em 0;
-}
 
+.appeal-icon-container {
+  padding: 0.5em 0;
+}
 </style>

@@ -1,32 +1,41 @@
 <?php
+
 namespace Service;
 
 use DAO\LecturerDAO;
 
-class LecturerService {
+class LecturerService
+{
     private $dao;
     private $courseId = 1;
 
-    public function __construct(LecturerDAO $dao) {
+    public function __construct(LecturerDAO $dao)
+    {
         $this->dao = $dao;
     }
-    public function getStudents() {
+    public function getStudents()
+    {
         return $this->dao->getStudentsByCourseId($this->courseId);
     }
-    public function updateScores($matricNo, $continuousMarksJson, $finalExam) {
+    public function updateScores($matricNo, $continuousMarksJson, $finalExam)
+    {
         return $this->dao->updateScores($matricNo, $continuousMarksJson, $finalExam, $this->courseId);
     }
-    public function getComponents() {
+    public function getComponents()
+    {
         return $this->dao->getComponentsByCourseId($this->courseId);
     }
-    public function saveComponent($component, $maxMark, $weight) {
+    public function saveComponent($component, $maxMark, $weight)
+    {
         $weight = (int)$weight;
         return $this->dao->saveComponent($this->courseId, $component, $maxMark, $weight);
     }
-    public function deleteComponent($component) {
+    public function deleteComponent($component)
+    {
         return $this->dao->deleteComponent($this->courseId, $component);
     }
-    public function syncStudentMarks() {
+    public function syncStudentMarks()
+    {
         return $this->dao->syncStudentMarks($this->courseId);
     }
 }

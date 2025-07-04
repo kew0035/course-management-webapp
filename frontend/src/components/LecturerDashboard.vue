@@ -6,101 +6,70 @@
     </header>
     <div class="dashboard-container">
       <h2>Welcome, {{ lecturerName }}</h2>
-      
+
       <nav class="tab-nav">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          :class="{ active: activeTab === tab.key }"
-          @click="activeTab = tab.key"
-        >
+        <button v-for="tab in tabs" :key="tab.key" :class="{ active: activeTab === tab.key }"
+          @click="activeTab = tab.key">
           {{ tab.label }}
         </button>
       </nav>
 
       <div v-if="activeTab === 'students'" class="search-container">
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="Search student by name..."
-        class="search-input"
-      />
-    </div>
+        <input type="text" v-model="searchQuery" placeholder="Search student by name..." class="search-input" />
+      </div>
 
-        <StudentRecordsList
-          v-if="activeTab === 'students'"
-          :students="students"
-          :searchQuery="searchQuery"
-          :components="components"
-          :finalExamMax="finalExamMax"
-          :appeals="appeals"
-          @edit-student="openEditScoreModal"
-          @respond-appeal="handleAppealResponse"
-        />
+      <StudentRecordsList v-if="activeTab === 'students'" :students="students" :searchQuery="searchQuery"
+        :components="components" :finalExamMax="finalExamMax" :appeals="appeals" @edit-student="openEditScoreModal"
+        @respond-appeal="handleAppealResponse" />
 
-      <ContinuousAssessmentComponents
-        v-if="activeTab === 'components'"
-        :components="components"
-        :showComponentModal="showComponentModal"
-        :isEditingComponent="isEditingComponent"
-        :componentForm="componentForm"
-        @edit-component="openEditComponentModal"
-        @delete-component="promptDeleteComponent"
-        @add-component="openAddComponentModal"
-        @save-component="saveComponent"
-        @cancel-component-modal="showComponentModal = false"
-      />
+      <ContinuousAssessmentComponents v-if="activeTab === 'components'" :components="components"
+        :showComponentModal="showComponentModal" :isEditingComponent="isEditingComponent" :componentForm="componentForm"
+        @edit-component="openEditComponentModal" @delete-component="promptDeleteComponent"
+        @add-component="openAddComponentModal" @save-component="saveComponent"
+        @cancel-component-modal="showComponentModal = false" />
 
-      <StatisticsView
-        v-if="activeTab === 'statistics'"
-        :students="students"
-        :averageTotalScore="students.length ? students.reduce((sum, s) => sum + s.totalScore, 0) / students.length : 0"
-      />
+      <StatisticsView v-if="activeTab === 'statistics'" :students="students"
+        :averageTotalScore="students.length ? students.reduce((sum, s) => sum + s.totalScore, 0) / students.length : 0" />
 
-     <!-- Edit student grades pop-up window -->
-    <div v-if="showEditModal" class="modal-overlay">
-      <div class="modal">
-        <h3>Edit Scores for {{ editingStudent.name }}</h3>
-        <div v-for="comp in filteredComponents" :key="comp.name" class="score-input-group">
-          <label>{{ comp.name }}:</label>
-          <input
-            type="number"
-            min="0"
-            :max="comp.maxMark"
-            v-model.number="editingScores[comp.name]"
-            @input="validateScore(comp.name, comp.maxMark)"
-          />
-          <small class="max-mark">Max: {{ comp.maxMark }}</small>
-        </div>
-        <div class="score-input-group">
-          <label>Final Exam Score:</label>
-          <input type="number" min="0" max="100" v-model.number="editingScores.final_exam" />
-          <small class="max-mark">Max: 100</small>
-        </div>
-        <div class="modal-buttons">
-          <button class="save-btn" @click="saveEditedScores">Save</button>
-          <button class="cancel-btn" @click="showEditModal = false">Cancel</button>
+      <!-- Edit student grades pop-up window -->
+      <div v-if="showEditModal" class="modal-overlay">
+        <div class="modal">
+          <h3>Edit Scores for {{ editingStudent.name }}</h3>
+          <div v-for="comp in filteredComponents" :key="comp.name" class="score-input-group">
+            <label>{{ comp.name }}:</label>
+            <input type="number" min="0" :max="comp.maxMark" v-model.number="editingScores[comp.name]"
+              @input="validateScore(comp.name, comp.maxMark)" />
+            <small class="max-mark">Max: {{ comp.maxMark }}</small>
+          </div>
+          <div class="score-input-group">
+            <label>Final Exam Score:</label>
+            <input type="number" min="0" max="100" v-model.number="editingScores.final_exam" />
+            <small class="max-mark">Max: 100</small>
+          </div>
+          <div class="modal-buttons">
+            <button class="save-btn" @click="saveEditedScores">Save</button>
+            <button class="cancel-btn" @click="showEditModal = false">Cancel</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-if="showToast" class="custom-toast">
-      {{ toastMessage }}
-    </div>
-    <div v-if="showToast" :class="['custom-toast', toastType]">
-      {{ toastMessage }}
-    </div>
-    <div v-if="showDeleteConfirm" class="modal-overlay">
-      <div class="modal">
-        <h3>Confirm Deletion</h3>
-        <p>Are you sure you want to delete the component: <strong>{{ pendingDeleteComponent }}</strong>?</p>
-        <div class="modal-buttons">
-          <button class="delete-btn" @click="confirmDelete">Yes, Delete</button>
-          <button class="cancel-btn" @click="showDeleteConfirm = false">Cancel</button>
+      <div v-if="showToast" class="custom-toast">
+        {{ toastMessage }}
+      </div>
+      <div v-if="showToast" :class="['custom-toast', toastType]">
+        {{ toastMessage }}
+      </div>
+      <div v-if="showDeleteConfirm" class="modal-overlay">
+        <div class="modal">
+          <h3>Confirm Deletion</h3>
+          <p>Are you sure you want to delete the component: <strong>{{ pendingDeleteComponent }}</strong>?</p>
+          <div class="modal-buttons">
+            <button class="delete-btn" @click="confirmDelete">Yes, Delete</button>
+            <button class="cancel-btn" @click="showDeleteConfirm = false">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -150,9 +119,9 @@ export default {
       toastType: "success",
       pendingDeleteComponent: null,
       showDeleteConfirm: false,
-       appeals: {},
+      appeals: {},
     };
-    
+
   },
 
   computed: {
@@ -170,7 +139,7 @@ export default {
       return sum / this.students.length;
     },
   },
-  
+
   methods: {
     validateScore(compName, maxMark) {
       if (this.editingScores[compName] > maxMark) {
@@ -210,8 +179,8 @@ export default {
 
     async fetchComponents() {
       try {
-        const res = await fetch("http://localhost:8080/lecturer/components",{credentials: 'include'});
-        
+        const res = await fetch("http://localhost:8080/lecturer/components", { credentials: 'include' });
+
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
         }
@@ -236,7 +205,7 @@ export default {
 
     async fetchStudents() {
       try {
-        const res = await fetch("http://localhost:8080/lecturer/students", {method: 'GET', credentials: 'include'});
+        const res = await fetch("http://localhost:8080/lecturer/students", { method: 'GET', credentials: 'include' });
 
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
@@ -276,7 +245,7 @@ export default {
             continuousMarks,
             finalExam: parseFloat(stu.final_exam_score ?? 0),
           };
-          
+
           student.totalScore = this.calculateTotalScore(student);
           return student;
         });
@@ -303,7 +272,7 @@ export default {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedScores),
-        credentials: 'include', 
+        credentials: 'include',
       })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to update scores");
@@ -353,7 +322,7 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-          credentials: 'include', 
+          credentials: 'include',
         });
 
         if (!res.ok) {
@@ -366,7 +335,7 @@ export default {
 
         await this.fetchComponents();
 
-        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST", credentials: 'include'});
+        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST", credentials: 'include' });
 
         await this.fetchStudents();
       } catch (error) {
@@ -384,7 +353,7 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
-          credentials: 'include', 
+          credentials: 'include',
         });
 
         if (!res.ok) {
@@ -393,7 +362,7 @@ export default {
         }
         this.showSuccessToast("🗑️ Component deleted successfully.");
         await this.fetchComponents();
-        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST", credentials: 'include'});
+        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST", credentials: 'include' });
         await this.fetchStudents();
       } catch (error) {
         this.showErrorToast("⚠️ Server error occurred: " + error.message);
@@ -427,7 +396,7 @@ export default {
         if (!res.ok) throw new Error("Failed to fetch appeals");
 
         const data = await res.json();
-        
+
         // Index by student + component for easy lookup, but retain real scm_id
         this.appeals = {};
         data.forEach(app => {
@@ -508,7 +477,7 @@ export default {
   padding: 1rem 2rem;
   font-size: 1.5rem;
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 0 0 8px 8px;
 }
 
@@ -545,15 +514,33 @@ export default {
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(30px) translateX(-50%); }
-  10% { opacity: 1; transform: translateY(0) translateX(-50%); }
-  90% { opacity: 1; transform: translateY(0) translateX(-50%); }
-  100% { opacity: 0; transform: translateY(-30px) translateX(-50%); }
+  0% {
+    opacity: 0;
+    transform: translateY(30px) translateX(-50%);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) translateX(-50%);
+  }
 }
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;

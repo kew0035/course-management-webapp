@@ -1,5 +1,5 @@
 <template>
-  
+
   <section class="statistics-section">
     <div class="stats-summary">
       <p>Total Students: <strong>{{ totalStudents }}</strong></p>
@@ -8,20 +8,18 @@
       <p>Lowest Score: <strong>{{ lowestScore.toFixed(2) }}%</strong></p>
     </div>
 
-    <ScorePieChart
-      v-if="hasScores && distribution && Object.keys(distribution).length > 0"
-      :distribution="distribution"
-    />
+    <ScorePieChart v-if="hasScores && distribution && Object.keys(distribution).length > 0"
+      :distribution="distribution" />
 
     <div>
-    <h2>📋 学生分数测试</h2>
-    <p>👥 学生总数: {{ totalStudents }}</p>
-    <ul>
-      <li v-for="(score, index) in scores" :key="index">
-        学生 {{ index + 1 }} 的总分: {{ score }}
-      </li>
-    </ul>
-  </div>
+      <h2>📋 学生分数测试</h2>
+      <p>👥 学生总数: {{ totalStudents }}</p>
+      <ul>
+        <li v-for="(score, index) in scores" :key="index">
+          学生 {{ index + 1 }} 的总分: {{ score }}
+        </li>
+      </ul>
+    </div>
 
 
   </section>

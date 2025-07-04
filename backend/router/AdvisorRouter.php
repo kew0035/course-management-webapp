@@ -187,7 +187,6 @@ return function (App $app) {
 
                 $res->getBody()->write(json_encode($data));
                 return $res->withHeader('Content-Type', 'application/json');
-
             } catch (Exception $e) {
                 $res->getBody()->write(json_encode(['error' => $e->getMessage()]));
                 return $res->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -303,6 +302,5 @@ return function (App $app) {
                 ->withHeader('Content-Type', 'text/csv')
                 ->withHeader('Content-Disposition', 'attachment; filename="advisor_report.csv"');
         });
-
     });
 };

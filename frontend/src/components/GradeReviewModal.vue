@@ -1,9 +1,6 @@
 <template>
   <div>
-    <button
-      :class="['review-btn', { submitted: appeal.status }]"
-      @click="openDialog"
-    >
+    <button :class="['review-btn', { submitted: appeal.status }]" @click="openDialog">
       {{ appeal.status ? 'Submitted' : 'Request Review' }}
     </button>
 
@@ -51,7 +48,7 @@ export default {
     async fetchAppealStatus() {
       try {
         const res = await fetch(`http://localhost:8080/student/appeal/${this.scmId}`, {
-          credentials: 'include'  
+          credentials: 'include'
         });
         const data = await res.json();
         if (res.ok && data.status) {
@@ -122,22 +119,29 @@ export default {
 
 .modal {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.4);
-  display: flex; justify-content: center; align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 .modal-content {
   background: white;
   padding: 20px;
   border-radius: 8px;
   width: 400px;
 }
+
 textarea {
   width: 100%;
   height: 80px;
   margin-top: 10px;
 }
+
 .close-btn {
   margin-top: 10px;
   background: #aaa;
@@ -146,6 +150,7 @@ textarea {
   border: none;
   border-radius: 5px;
 }
+
 .readonly {
   background: #f5f5f5;
   padding: 10px;
