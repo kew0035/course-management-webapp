@@ -3,26 +3,62 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
 
-require_once __DIR__ . '/../service/LecturerService.php';
-require_once __DIR__ . '/../dao/LecturerDAO.php';
-require_once __DIR__ . '/../config/database.php';
+use Service\LecturerService;
+use DAO\LecturerDAO;
 
 return function (App $app) {
     $pdo = getPDO();
-    $dao = new LecturerDAO($pdo);
-    $service = new LecturerService($dao);
+    // $dao = new LecturerDAO($pdo);
+    // $service = new LecturerService($dao);
 
-    $app->group('/lecturer', function ($group) use ($service, $pdo) {
+    $app->group('/lecturer', function ($group) use ($pdo) {
 
-        $group->get('/students', function (Request $request, Response $response) use ($service) {
-            $students = $service->getStudents();
-            $response->getBody()->write(json_encode($students));
-            return $response->withHeader('Content-Type', 'application/json');
-        });
+        $group->get('/students', function (Request $req, Response $res) use ($pdo) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
 
-        $group->post('/update-scores', function (Request $request, Response $response) use ($service) {
+            $userId = $_SESSION['user_id'] ?? null;
+            error_log("Session ID: " . session_id());
+            error_log("User ID: " . ($_SESSION['user_id'] ?? 'not set'));
+            
+            if (!$userId) {
+                $res->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $res->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            $dao = new LecturerDAO($pdo);
+            $service = new LecturerService($dao);
+
+
+            try {
+                $students = $service->getStudents();
+                $res->getBody()->write(json_encode($students));
+                return $res->withHeader('Content-Type', 'application/json');
+            } catch (Exception $e) {
+                $res->getBody()->write(json_encode(['error' => $e->getMessage()]));
+                return $res->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+        });            
+      
+        //     $students = $service->getStudents();
+        //     $response->getBody()->write(json_encode($students));
+        //     return $response->withHeader('Content-Type', 'application/json');
+        // });
+
+        $group->post('/update-scores', function (Request $request, Response $response) use ($pdo) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
             $data = $request->getParsedBody();
-
             $matric_no = $data['matric_no'] ?? '';
             $continuous_marks = $data['continuous_marks'] ?? [];
             $final_exam = $data['final_exam'] ?? 0;
@@ -31,6 +67,9 @@ return function (App $app) {
                 $response->getBody()->write(json_encode(['message' => 'Matric number required']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
+
+            $dao = new LecturerDAO($pdo);
+            $service = new LecturerService($dao);
 
             $success = $service->updateScores($matric_no, $continuous_marks, $final_exam);
             if (!$success) {
@@ -42,15 +81,64 @@ return function (App $app) {
             return $response->withHeader('Content-Type', 'application/json');
         });
 
-        $group->get('/components', function (Request $request, Response $response) use ($service) {
+        //     $data = $request->getParsedBody();
+
+        //     $matric_no = $data['matric_no'] ?? '';
+        //     $continuous_marks = $data['continuous_marks'] ?? [];
+        //     $final_exam = $data['final_exam'] ?? 0;
+
+        //     if (!$matric_no) {
+        //         $response->getBody()->write(json_encode(['message' => 'Matric number required']));
+        //         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        //     }
+
+        //     $success = $service->updateScores($matric_no, $continuous_marks, $final_exam);
+        //     if (!$success) {
+        //         $response->getBody()->write(json_encode(['message' => 'Student not found']));
+        //         return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        //     }
+
+        //     $response->getBody()->write(json_encode(['message' => 'Scores updated']));
+        //     return $response->withHeader('Content-Type', 'application/json');
+        // });
+
+        $group->get('/components', function (Request $request, Response $response) use ($pdo) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            $dao = new LecturerDAO($pdo);
+            $service = new LecturerService($dao);
+
             $components = $service->getComponents();
             $response->getBody()->write(json_encode($components));
             return $response->withHeader('Content-Type', 'application/json');
         });
+        //     $components = $service->getComponents();
+        //     $response->getBody()->write(json_encode($components));
+        //     return $response->withHeader('Content-Type', 'application/json');
+        // });
 
-        $group->post('/component/save', function (Request $request, Response $response) use ($service) {
+        $group->post('/component/save', function (Request $request, Response $response) use ($pdo) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
             $data = json_decode($request->getBody()->getContents(), true);
-
             $component = trim($data['name'] ?? '');
             $maxMark = (int)($data['maxMark'] ?? 0);
             $weight = (int)($data['weight'] ?? 0);
@@ -59,6 +147,9 @@ return function (App $app) {
                 $response->getBody()->write(json_encode(['message' => 'Invalid input']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
+
+            $dao = new LecturerDAO($pdo, $userId);
+            $service = new LecturerService($dao);
 
             try {
                 $service->saveComponent($component, $maxMark, $weight);
@@ -69,8 +160,39 @@ return function (App $app) {
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
         });
+        //     $data = json_decode($request->getBody()->getContents(), true);
 
-        $group->post('/component/delete', function (Request $request, Response $response) use ($service) {
+        //     $component = trim($data['name'] ?? '');
+        //     $maxMark = (int)($data['maxMark'] ?? 0);
+        //     $weight = (int)($data['weight'] ?? 0);
+
+        //     if (trim($component) === '' || $maxMark <= 0 || $weight <= 0) {
+        //         $response->getBody()->write(json_encode(['message' => 'Invalid input']));
+        //         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        //     }
+
+        //     try {
+        //         $service->saveComponent($component, $maxMark, $weight);
+        //         $response->getBody()->write(json_encode(['message' => 'Component saved']));
+        //         return $response->withHeader('Content-Type', 'application/json');
+        //     } catch (Exception $e) {
+        //         $response->getBody()->write(json_encode(['message' => 'Save failed', 'error' => $e->getMessage()]));
+        //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        //     }
+        // });
+
+        $group->post('/component/delete', function (Request $request, Response $response) use ($pdo) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
             $data = $request->getParsedBody();
             $component = $data['name'] ?? '';
 
@@ -79,16 +201,49 @@ return function (App $app) {
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
+            $dao = new LecturerDAO($pdo);
+            $service = new LecturerService($dao);
+
             $service->deleteComponent($component);
             $response->getBody()->write(json_encode(['message' => 'Component deleted']));
             return $response->withHeader('Content-Type', 'application/json');
         });
+        //     $data = $request->getParsedBody();
+        //     $component = $data['name'] ?? '';
 
-        $group->post('/sync-student-marks', function (Request $request, Response $response) use ($service) {
+        //     if (!$component) {
+        //         $response->getBody()->write(json_encode(['message' => 'Component name required']));
+        //         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        //     }
+
+        //     $service->deleteComponent($component);
+        //     $response->getBody()->write(json_encode(['message' => 'Component deleted']));
+        //     return $response->withHeader('Content-Type', 'application/json');
+        // });
+
+        $group->post('/sync-student-marks', function (Request $request, Response $response) use ($pdo) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$userId) {
+                $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            $dao = new LecturerDAO($pdo);
+            $service = new LecturerService($dao);
+
             $service->syncStudentMarks();
             $response->getBody()->write(json_encode(['message' => 'Student marks synchronized']));
             return $response->withHeader('Content-Type', 'application/json');
         });
+        //     $service->syncStudentMarks();
+        //     $response->getBody()->write(json_encode(['message' => 'Student marks synchronized']));
+        //     return $response->withHeader('Content-Type', 'application/json');
+        // });
 
         $group->get('/appeals', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
@@ -171,7 +326,5 @@ return function (App $app) {
             $response->getBody()->write(json_encode(['message' => 'Appeal status updated']));
             return $response->withHeader('Content-Type', 'application/json');
         });
-
-
     });
 };

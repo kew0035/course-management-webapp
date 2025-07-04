@@ -1,4 +1,11 @@
 <?php
+namespace DAO;
+
+use PDO;
+use Exception;
+use InvalidArgumentException;
+use RuntimeException;
+
 class LecturerDAO {
     private $pdo;
 

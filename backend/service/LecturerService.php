@@ -1,6 +1,7 @@
 <?php
-// LecturerService.php
-require_once __DIR__ . '/../dao/LecturerDAO.php';
+namespace Service;
+
+use DAO\LecturerDAO;
 
 class LecturerService {
     private $dao;

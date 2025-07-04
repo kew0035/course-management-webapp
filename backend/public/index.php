@@ -47,7 +47,6 @@ $app->addBodyParsingMiddleware();
 (require __DIR__ . '/../router/StudentRouter.php')($app);
 (require __DIR__ . '/../router/LecturerRouter.php')($app);
 (require __DIR__ . '/../router/AdvisorRouter.php')($app);
-(require __DIR__ . '/../router/AppealRouter.php')($app);
 
 
 $app->run();

@@ -196,52 +196,83 @@ export default {
 
 
     async fetchComponents() {
-      const res = await fetch("http://localhost:8080/lecturer/components");
-      const data = await res.json();
-
-      this.components = data.map((comp) => ({
-        name: comp.component,
-        maxMark: comp.max_mark,
-        weight: comp.weight,
-      }));
-    },
-
-    async fetchStudents() {
-      const res = await fetch("http://localhost:8080/lecturer/students");
-      const data = await res.json();
-      const comps = this.components;
-      console.log("📦 Raw student data:", data[0]);
-
-      this.students = data.map((stu) => {
-        let continuousMarks;
-
-        if (typeof stu.continuous_marks === "string") {
-          try {
-            continuousMarks = JSON.parse(stu.continuous_marks);
-          } catch (e) {
-            console.error("❌ JSON parse error:", e);
-            continuousMarks = {};
-          }
-        } else {
-          continuousMarks = stu.continuous_marks || {};
+      try {
+        const res = await fetch("http://localhost:8080/lecturer/components",{credentials: 'include'});
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
         }
 
-        comps.forEach((comp) => {
-          if (!(comp.name in continuousMarks)) {
-            continuousMarks[comp.name] = 0;
-          }
-        });
+        const data = await res.json();
 
-        const student = {
-          matricNo: stu.matric_no,
-          name: stu.name,
-          continuousMarks,
-          finalExam: parseFloat(stu.final_exam_score ?? 0),
-        };
-        student.totalScore = this.calculateTotalScore(student);
-        return student;
-      });
+        if (Array.isArray(data)) {
+          this.components = data.map((comp) => ({
+            name: comp.component,
+            maxMark: comp.max_mark,
+            weight: comp.weight,
+          }));
+        } else {
+          throw new Error("Invalid data format");
+        }
+      } catch (error) {
+        console.error("Failed to fetch components:", error);
+        this.errorMessage = "Failed to load components";
+      }
     },
+
+
+    async fetchStudents() {
+      try {
+        const res = await fetch("http://localhost:8080/lecturer/students", {method: 'GET', credentials: 'include'});
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const comps = this.components;
+        console.log("📦 Raw student data:", data[0]);
+
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid student data format");
+        }
+
+        this.students = data.map((stu) => {
+          let continuousMarks;
+
+          if (typeof stu.continuous_marks === "string") {
+            try {
+              continuousMarks = JSON.parse(stu.continuous_marks);
+            } catch (e) {
+              console.error("❌ JSON parse error:", e);
+              continuousMarks = {};
+            }
+          } else {
+            continuousMarks = stu.continuous_marks || {};
+          }
+
+          comps.forEach((comp) => {
+            if (!(comp.name in continuousMarks)) {
+              continuousMarks[comp.name] = 0;
+            }
+          });
+
+          const student = {
+            matricNo: stu.matric_no,
+            name: stu.name,
+            continuousMarks,
+            finalExam: parseFloat(stu.final_exam_score ?? 0),
+          };
+          
+          student.totalScore = this.calculateTotalScore(student);
+          return student;
+        });
+      } catch (error) {
+        console.error("Failed to fetch students:", error);
+        this.errorMessage = "Failed to load students";
+      }
+    },
+
 
     saveEditedScores() {
       this.filteredComponents.forEach((comp) =>
@@ -259,6 +290,7 @@ export default {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedScores),
+        credentials: 'include', 
       })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to update scores");
@@ -308,6 +340,7 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          credentials: 'include', 
         });
 
         if (!res.ok) {
@@ -320,7 +353,7 @@ export default {
 
         await this.fetchComponents();
 
-        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST" });
+        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST", credentials: 'include'});
 
         await this.fetchStudents();
       } catch (error) {
@@ -338,6 +371,7 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
+          credentials: 'include', 
         });
 
         if (!res.ok) {
@@ -346,7 +380,7 @@ export default {
         }
         this.showSuccessToast("🗑️ Component deleted successfully.");
         await this.fetchComponents();
-        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST" });
+        await fetch("http://localhost:8080/lecturer/sync-student-marks", { method: "POST", credentials: 'include'});
         await this.fetchStudents();
       } catch (error) {
         this.showErrorToast("⚠️ Server error occurred: " + error.message);
