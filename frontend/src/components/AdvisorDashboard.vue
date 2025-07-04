@@ -135,215 +135,197 @@
 </template>
 
 
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-
-const advisorName = ref('');
-const advisees = ref([]);
-const selectedStudent = ref(null);
-const selectedStudentCourses = ref([]);
-const componentHeaders = ref([]);
-const toastType = ref("");
-const toastMessage = ref("");
-const showToast = ref(false);
-const showNotesModal = ref(false);
-const studentNotes = ref([]);
-const newNote = ref('');
-const noteStudent = ref(null);
-const searchQuery = ref('');
-const sortByGPAAsc = ref(true);
-
-// Computed: Filter advisees by name
-const filteredAdvisees = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase();
-  let filtered = advisees.value;
-
-  if (query) {
-    filtered = filtered.filter(student =>
-      student.stud_name.toLowerCase().includes(query)
-    );
-  }
-
-  // Sort by GPA
-  return filtered.slice().sort((a, b) => {
-    const gpaA = a.gpa ?? 0;
-    const gpaB = b.gpa ?? 0;
-    return sortByGPAAsc.value ? gpaA - gpaB : gpaB - gpaA;
-  });
-});
-
-onMounted(async () => {
-  try {
-    const profileRes = await fetch('http://localhost:8080/advisor/profile', {
-      credentials: 'include'
-    });
-
-    if (profileRes.ok) {
-      const profileData = await profileRes.json();
-      advisorName.value = profileData.adv_name || 'Advisor'; // fallback if null
-    } else {
-      console.warn('Failed to fetch advisor profile.');
-    }
-
-    const res = await fetch('http://localhost:8080/advisor/advisees', {
-      method: 'GET',
-      credentials: 'include'
-    });
-
-    if (!res.ok) {
-      const resText = await res.text();
-      console.error('Backend response:', resText);
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
-
-    const data = await res.json();
-    advisees.value = data;
-
-  } catch (error) {
-    console.error('Initialization error:', error);
-    alert('Failed to load advisor dashboard.');
-  }
-});
-
-
-const isExporting = ref(false);
-
-function exportReport() {
-  isExporting.value = true;
-  window.open('http://localhost:8080/advisor/export', '_blank');
-  setTimeout(() => {
-    isExporting.value = false;
-    showSuccessToast('Report exported successfully.');
-  }, 1000);
-}
-
-
-function getGradeClass(grade) {
-  if (!grade) return 'grade grade-none';
-
-  const gradeUpper = grade.toUpperCase();
-
-  if (gradeUpper.startsWith('A')) return 'grade grade-a';
-  if (gradeUpper.startsWith('B')) return 'grade grade-b';
-  if (gradeUpper.startsWith('C')) return 'grade grade-c';
-  if (['D', 'F'].some(g => gradeUpper.startsWith(g))) return 'grade grade-f';
-
-  return 'grade'; // fallback
-}
-
-async function viewStudent(student) {
-  try {
-    const res = await fetch(`http://localhost:8080/advisor/student/${student.stud_id}`, {
-      method: 'GET',
-      credentials: 'include'
-    });
-
-    if (!res.ok) throw new Error('Failed to fetch student detail');
-
-    const data = await res.json();
-    selectedStudent.value = {
-      ...student
+<script>
+export default {
+  data() {
+    return {
+      advisorName: '',
+      advisees: [],
+      selectedStudent: null,
+      selectedStudentCourses: [],
+      componentHeaders: [],
+      toastType: '',
+      toastMessage: '',
+      showToast: false,
+      showNotesModal: false,
+      studentNotes: [],
+      newNote: '',
+      noteStudent: null,
+      searchQuery: '',
+      sortByGPAAsc: true,
+      isExporting: false
     };
+  },
+  computed: {
+    filteredAdvisees() {
+      const query = this.searchQuery.trim().toLowerCase();
+      let filtered = this.advisees;
 
-    selectedStudentCourses.value = [];
-    componentHeaders.value = [];
-
-    const compSet = new Set();
-
-    data.courses.forEach(course => {
-      if (course.components) {
-        Object.keys(course.components).forEach(comp => compSet.add(comp));
+      if (query) {
+        filtered = filtered.filter(student =>
+          student.stud_name.toLowerCase().includes(query)
+        );
       }
-    });
 
-    selectedStudentCourses.value = data.courses;
-    componentHeaders.value = Array.from(compSet);
+      return filtered.slice().sort((a, b) => {
+        const gpaA = a.gpa ?? 0;
+        const gpaB = b.gpa ?? 0;
+        return this.sortByGPAAsc ? gpaA - gpaB : gpaB - gpaA;
+      });
+    }
+  },
+  mounted() {
+    this.fetchAdvisorData();
+  },
+  methods: {
+    async fetchAdvisorData() {
+      try {
+        const profileRes = await fetch('http://localhost:8080/advisor/profile', {
+          credentials: 'include'
+        });
 
-  } catch (err) {
-    alert('Failed to load student detail');
-    console.error(err);
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          this.advisorName = profileData.adv_name || 'Advisor';
+        } else {
+          console.warn('Failed to fetch advisor profile.');
+        }
+
+        const res = await fetch('http://localhost:8080/advisor/advisees', {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          const resText = await res.text();
+          console.error('Backend response:', resText);
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        this.advisees = data;
+
+      } catch (error) {
+        console.error('Initialization error:', error);
+        alert('Failed to load advisor dashboard.');
+      }
+    },
+    exportReport() {
+      this.isExporting = true;
+      window.open('http://localhost:8080/advisor/export', '_blank');
+      setTimeout(() => {
+        this.isExporting = false;
+        this.showSuccessToast('Report exported successfully.');
+      }, 1000);
+    },
+    getGradeClass(grade) {
+      if (!grade) return 'grade grade-none';
+      const gradeUpper = grade.toUpperCase();
+      if (gradeUpper.startsWith('A')) return 'grade grade-a';
+      if (gradeUpper.startsWith('B')) return 'grade grade-b';
+      if (gradeUpper.startsWith('C')) return 'grade grade-c';
+      if (['D', 'F'].some(g => gradeUpper.startsWith(g))) return 'grade grade-f';
+      return 'grade';
+    },
+    async viewStudent(student) {
+      try {
+        const res = await fetch(`http://localhost:8080/advisor/student/${student.stud_id}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch student detail');
+
+        const data = await res.json();
+        this.selectedStudent = { ...student };
+        this.selectedStudentCourses = [];
+        this.componentHeaders = [];
+
+        const compSet = new Set();
+        data.courses.forEach(course => {
+          if (course.components) {
+            Object.keys(course.components).forEach(comp => compSet.add(comp));
+          }
+        });
+
+        this.selectedStudentCourses = data.courses;
+        this.componentHeaders = Array.from(compSet);
+
+      } catch (err) {
+        alert('Failed to load student detail');
+        console.error(err);
+      }
+    },
+    closeNotesModal() {
+      this.showNotesModal = false;
+      this.studentNotes = [];
+      this.newNote = '';
+      this.noteStudent = null;
+    },
+    async viewStudentNotes(student) {
+      this.noteStudent = student;
+      try {
+        const res = await fetch(`http://localhost:8080/advisor/student/${student.stud_id}/notes`, {
+          credentials: 'include'
+        });
+        const data = await res.json();
+        this.studentNotes = data;
+        this.showNotesModal = true;
+      } catch (e) {
+        alert('Failed to load notes');
+        console.error(e);
+      }
+    },
+    async submitNewNote() {
+      if (!this.newNote.trim()) return;
+      try {
+        const res = await fetch(`http://localhost:8080/advisor/student/${this.noteStudent.stud_id}/note`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ note: this.newNote })
+        });
+
+        if (!res.ok) throw new Error('Failed to save note');
+
+        await res.json();
+        await this.viewStudentNotes(this.noteStudent);
+        this.newNote = '';
+        this.showSuccessToast('Note added successfully');
+      } catch (err) {
+        this.showErrorToast('Failed to add note');
+        console.error(err);
+      }
+    },
+    showSuccessToast(message) {
+      this.toastType = "success";
+      this.toastMessage = message;
+      this.showToast = true;
+      setTimeout(() => this.showToast = false, 3000);
+    },
+    showErrorToast(message) {
+      this.toastType = "error";
+      this.toastMessage = message;
+      this.showToast = true;
+      setTimeout(() => this.showToast = false, 3000);
+    },
+    formatDate(str) {
+      const d = new Date(str);
+      return d.toLocaleString();
+    },
+    handleLogout() {
+      fetch('http://localhost:8080/logout', {
+        method: 'POST',
+        credentials: 'include'
+      }).then(() => {
+        window.location.href = '/';
+      }).catch(err => {
+        console.error('Logout failed:', err);
+      });
+    }
   }
-}
-
-
-function closeNotesModal() {
-  showNotesModal.value = false;
-  studentNotes.value = [];
-  newNote.value = '';
-  noteStudent.value = null;
-}
-
-async function viewStudentNotes(student) {
-  noteStudent.value = student;
-  try {
-    const res = await fetch(`http://localhost:8080/advisor/student/${student.stud_id}/notes`, {
-      credentials: 'include'
-    });
-    const data = await res.json();
-    studentNotes.value = data;
-    showNotesModal.value = true;
-  } catch (e) {
-    alert('Failed to load notes');
-    console.error(e);
-  }
-}
-
-async function submitNewNote() {
-  if (!newNote.value.trim()) return;
-
-  try {
-    const res = await fetch(`http://localhost:8080/advisor/student/${noteStudent.value.stud_id}/note`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ note: newNote.value })
-    });
-
-    if (!res.ok) throw new Error('Failed to save note');
-
-    await res.json();
-    await viewStudentNotes(noteStudent.value); // refresh notes
-    newNote.value = '';
-    showSuccessToast('Note added successfully');
-  } catch (err) {
-    showErrorToast('Failed to add note');
-    console.error(err);
-  }
-}
-
-function showSuccessToast(message) {
-  toastType.value = "success";
-  toastMessage.value = message;
-  showToast.value = true;
-  setTimeout(() => showToast.value = false, 3000);
-}
-
-function showErrorToast(message) {
-  toastType.value = "error";
-  toastMessage.value = message;
-  showToast.value = true;
-  setTimeout(() => showToast.value = false, 3000);
-}
-
-function formatDate(str) {
-  const d = new Date(str);
-  return d.toLocaleString();
-}
-
-
-
-function handleLogout() {
-  fetch('http://localhost:8080/logout', {
-    method: 'POST',
-    credentials: 'include'
-  }).then(() => {
-    window.location.href = '/'; // shared login page
-  }).catch(err => {
-    console.error('Logout failed:', err);
-  });
-}
+};
 </script>
-
 
 
 <style scoped>
