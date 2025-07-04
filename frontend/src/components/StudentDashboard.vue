@@ -30,11 +30,13 @@
       </button>
     </nav>
 
-    <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
+    <!-- <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3> -->
 
     <!-- Marks Tab -->
     <section v-if="activeTab === 'marks'">
+      <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
       <div v-if="grades.length" class="score-card">
+        
         <table class="styled-table">
           <thead>
             <tr>
@@ -83,6 +85,7 @@
 
     <!-- Ranking Tab -->
     <section v-if="activeTab === 'ranking'">
+      <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
       <div class="ranking-card">
         <h3 class="section-title">Your Ranking</h3>
         
@@ -107,6 +110,7 @@
 
     <!-- Comparison Tab -->
     <section v-if="activeTab === 'comparison'">
+      <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
       <h3 class="section-title">Compare with Coursemates (Anonymous)</h3>
       <div class="score-card">
       <template v-if="Array.isArray(anonymousPeers) && anonymousPeers.length">

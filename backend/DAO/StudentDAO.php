@@ -165,6 +165,25 @@ class StudentDAO {
     
         return $peers;
     }
+
+    public function getCourseIdByUserId($userId) {
+        $sql = "
+            SELECT course_id 
+            FROM student_courses 
+            WHERE stud_id = (
+                SELECT stud_id 
+                FROM students 
+                WHERE user_id = :user_id 
+                LIMIT 1
+            )
+            LIMIT 1
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        $course = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $course ? $course['course_id'] : null;
+    }
+    
     
     
     

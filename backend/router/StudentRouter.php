@@ -97,19 +97,16 @@ return function (App $app) {
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
         
-            $stmt = $pdo->prepare("SELECT course_id FROM student_courses WHERE stud_id = (SELECT stud_id FROM students WHERE user_id = :user_id LIMIT 1)");
-            $stmt->execute(['user_id' => $userId]);
-            $course = $stmt->fetch(PDO::FETCH_ASSOC);
+            $courseId = (int)$args['courseId']; 
+            $dao = new StudentDAO($pdo, (int)$userId);
+            $service = new StudentService($dao);
+
+            $enrolledCourseId = $dao->getCourseIdByUserId($userId);
         
-            if (!$course) {
+            if ($enrolledCourseId != $courseId) {
                 $response->getBody()->write(json_encode(['message' => 'Student is not enrolled in any course'])); 
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-        
-            $courseId = (int)$args['courseId']; 
-        
-            $dao = new StudentDAO($pdo, (int)$userId);
-            $service = new StudentService($dao);
         
             try {
                 $peers = $service->getPeers($courseId);

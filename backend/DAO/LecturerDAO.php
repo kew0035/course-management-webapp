@@ -444,7 +444,7 @@ class LecturerDAO {
         foreach ($results as $r) {
             $score = $r['total_score'];
                 if ($score === null) {
-                    continue; // 跳过未评分的课程，避免出错
+                    continue; 
                 }
             $credit = $r['credit'];
             $gradePoint = $this->getGradePointFromScore($score);
