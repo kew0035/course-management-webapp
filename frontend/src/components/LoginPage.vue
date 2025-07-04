@@ -99,36 +99,41 @@ export default {
 html, body {
   margin: 0;
   padding: 0;
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
   overflow: hidden;
 }
 
 .page-bg {
-  background-color: red;
-  width: auto;
+position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
   height: 100vh;
-  overflow: hidden;
-  /* background-image: url('../assets/background.jpeg'); */
-  background-size: cover;
+  background-image: url('../assets/background.jpeg');
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
+
 
 .login-container {
   max-width: 420px;
-  width: 90%; /* 确保不会超出屏幕宽度 */
-  padding: 3rem 2.5rem;
-  margin: 0 auto;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
   background: linear-gradient(135deg, #eaf2ff, #ffffff);
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0, 90, 255, 0.1);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
+
 
 
 
