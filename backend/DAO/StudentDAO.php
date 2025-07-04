@@ -79,37 +79,55 @@ class StudentDAO {
     }
 
     public function getRanking($courseId) {
-        // 获取当前学生的ID
+        // Fetch the student's total score for the given course
         $studId = $this->getStudentId();
     
-        // 获取当前学生的总分数
-        $sqlTotalScore = "SELECT total_score FROM student_grades WHERE stud_id = ? AND course_id = ?";
-        $stmtTotalScore = $this->pdo->prepare($sqlTotalScore);
-        $stmtTotalScore->execute([$studId, $courseId]);
-        $studentTotalScore = $stmtTotalScore->fetchColumn();
+        // Fetch the total score of the student for the course
+        $sql = "
+            SELECT total_score
+            FROM student_grades 
+            WHERE stud_id = :stud_id AND course_id = :course_id
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['stud_id' => $studId, 'course_id' => $courseId]);
     
+        $studentTotalScore = $stmt->fetchColumn();
+    
+        // If the student doesn't have a score for the course, return a default empty value
         if ($studentTotalScore === false) {
-            // 如果没有找到该学生的成绩，抛出异常
-            throw new Exception("Student's score for this course not found.");
+            return [
+                'rank' => 'No ranking data available.',
+                'total_students' => 0
+            ];
         }
     
-        // 计算排名，排名基于 total_score 的降序排列
+        // Fetch the rank of the student (how many students have a higher score)
         $sqlRank = "
             SELECT COUNT(*) + 1 AS `rank`
             FROM student_grades sg1
-            WHERE sg1.total_score > (
-                SELECT total_score FROM student_grades sg2 WHERE sg2.stud_id = ? AND sg2.course_id = ?
-            ) AND sg1.course_id = ?
+            WHERE sg1.total_score > :student_score
+            AND sg1.course_id = :course_id
         ";
         $stmtRank = $this->pdo->prepare($sqlRank);
-        $stmtRank->execute([$studId, $courseId, $courseId]);
+        $stmtRank->execute(['student_score' => $studentTotalScore, 'course_id' => $courseId]);
         $rank = $stmtRank->fetchColumn();
     
-        // 获取该课程的学生总人数
-        $sqlCount = "SELECT COUNT(*) FROM student_grades WHERE course_id = ?";
-        $total = $this->pdo->prepare($sqlCount);
-        $total->execute([$courseId]);
-        $totalStudents = $total->fetchColumn();
+        // Fetch the total number of students for the course
+        $sqlCount = "
+            SELECT COUNT(*) 
+            FROM student_grades 
+            WHERE course_id = :course_id
+        ";
+        $stmtCount = $this->pdo->prepare($sqlCount);
+        $stmtCount->execute(['course_id' => $courseId]);
+        $totalStudents = $stmtCount->fetchColumn();
+    
+        if ($totalStudents === 0) {
+            return [
+                'rank' => 0,
+                'total_students' => 0
+            ];
+        }
     
         return [
             'rank' => (int)$rank,
@@ -117,33 +135,8 @@ class StudentDAO {
         ];
     }
     
-    // public function getRanking() {
-    //     $studId = $this->getStudentId();
 
-    //     // Calculate ranking example, ranking based on total_score in descending order
-    //     $sqlRank = "
-    //         SELECT COUNT(*) + 1 AS `rank`
-    //         FROM student_grades sg1
-    //         WHERE sg1.total_score > (
-    //             SELECT total_score FROM student_grades sg2 WHERE sg2.stud_id = ?
-    //         )
-    //     ";
-    //     $stmtRank = $this->pdo->prepare($sqlRank);
-    //     $stmtRank->execute([$studId]);
-    //     $rank = $stmtRank->fetchColumn();
-
-    //     // total people
-    //     $sqlCount = "SELECT COUNT(*) FROM student_grades";
-    //     $total = $this->pdo->query($sqlCount)->fetchColumn();
-
-    //     return [
-    //         'rank' => (int)$rank,
-    //         'total_students' => (int)$total
-    //     ];
-    // }
-
-    public function getPeers() {
-        // Return anonymous classmates data. This example randomly selects some student data from student_grades.
+    public function getPeers($courseId) {
         $sql = "
             SELECT
                 sg.stud_id,
@@ -153,14 +146,27 @@ class StudentDAO {
                 RANK() OVER (ORDER BY sg.total_score DESC) AS `rank`
             FROM student_grades sg
             JOIN students s ON sg.stud_id = s.stud_id
+            WHERE sg.course_id = :course_id
+              AND sg.total_score IS NOT NULL
             ORDER BY sg.total_score DESC
             LIMIT 10
         ";
+    
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+        $stmt->execute(['course_id' => $courseId]);
+        $peers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // Check if peers exist
+        if (empty($peers)) {
+            return [
+                'message' => 'No peer comparison data available.'
+            ];
+        }
+    
+        return $peers;
     }
+    
+    
     
     // public function insert(array $data): void {
     //     $stmt = $this->pdo->prepare("INSERT INTO students (name, email, age) VALUES (:name, :email, :age)");

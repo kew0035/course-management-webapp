@@ -85,20 +85,31 @@
     <section v-if="activeTab === 'ranking'">
       <div class="ranking-card">
         <h3 class="section-title">Your Ranking</h3>
-        <div class="ranking-info">
-          <div><strong>Class Rank:</strong> {{ classRank }} / {{ totalStudents }}</div>
-          <div><strong>Percentile:</strong> {{ percentile.toFixed(2) }}%</div>
+        
+        <!-- Check if data is available -->
+        <div v-if="totalStudents > 0">
+          <div class="ranking-info">
+            <div><strong>Class Rank:</strong> {{ classRank }} / {{ totalStudents }}</div>
+            <div><strong>Percentile:</strong> {{ percentile.toFixed(2) }}%</div>
+          </div>
+          
+          <!-- Chart Container -->
+          <div class="chart-container">
+            <canvas id="percentileChart"></canvas>
+          </div>
         </div>
-        <div class="chart-container">
-          <canvas id="percentileChart"></canvas>
-        </div>
+        <!-- No data available -->
+        <div v-else class="no-data">No ranking data available.</div>
       </div>
     </section>
+
+
 
     <!-- Comparison Tab -->
     <section v-if="activeTab === 'comparison'">
       <h3 class="section-title">Compare with Coursemates (Anonymous)</h3>
       <div class="score-card">
+      <template v-if="Array.isArray(anonymousPeers) && anonymousPeers.length">
         <table class="styled-table">
           <thead>
             <tr>
@@ -111,7 +122,7 @@
             <tr
               v-for="peer in anonymousPeers"
               :key="peer.id"
-              :class="{ 'highlight-row': peer.user_id === userId }"
+              :class="{ 'highlight-row': peer.user_id == userId }"
             >
               <td class="component-name">{{ peer.id }}</td>
               <td>{{ peer.totalScore }}%</td>
@@ -119,57 +130,60 @@
             </tr>
           </tbody>
         </table>
-        <div v-if="anonymousPeers.length === 0" class="no-data">
-          No peer comparison data available.
-        </div>
-      </div>
-    </section>
-
-    <!-- Advisor Tab -->
-<section v-if="activeTab === 'advisor'">
-  <div class="advisor-card">
-    <h3 class="section-title">Your Assigned Advisor</h3>
-
-    <div v-if="advisor">
-      <!-- Name and Email in one row -->
-      <div class="advisor-info-row">
-        <div><strong>Name:</strong> {{ advisor.advisor_name }}</div>
-        <div><strong>Email:</strong> {{ advisor.advisor_email }}</div>
-      </div>
-
-      <!-- Notes Table -->
-        <div class="advisor-notes-section" v-if="advisorNotes.length">
-          <h4>Private Notes</h4>
-          <table class="styled-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Note</th>
-                <th>Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(note, index) in advisorNotes" :key="index">
-                <td>{{ index + 1 }}</td>
-                <td>{{ note.note }}</td>
-                <td>{{ new Date(note.created_at).toLocaleString() }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div v-else class="no-data">No private notes available.</div>
-      </div>
-
-      <div v-else-if="advisorError">
-        <p class="error-message">{{ advisorError }}</p>
-      </div>
-
-      <div v-else>
-        <p>Loading advisor info...</p>
+      </template>
+      <div v-else class="no-data">
+        No peer comparison data available.
       </div>
     </div>
-  </section>
+
+    </section>
+
+
+    <!-- Advisor Tab -->
+    <section v-if="activeTab === 'advisor'">
+      <div class="advisor-card">
+        <h3 class="section-title">Your Assigned Advisor</h3>
+
+        <div v-if="advisor">
+          <!-- Name and Email in one row -->
+          <div class="advisor-info-row">
+            <div><strong>Name:</strong> {{ advisor.advisor_name }}</div>
+            <div><strong>Email:</strong> {{ advisor.advisor_email }}</div>
+          </div>
+
+          <!-- Notes Table -->
+            <div class="advisor-notes-section" v-if="advisorNotes.length">
+              <h4>Private Notes</h4>
+              <table class="styled-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Note</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(note, index) in advisorNotes" :key="index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ note.note }}</td>
+                    <td>{{ new Date(note.created_at).toLocaleString() }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div v-else class="no-data">No private notes available.</div>
+          </div>
+
+          <div v-else-if="advisorError">
+            <p class="error-message">{{ advisorError }}</p>
+          </div>
+
+          <div v-else>
+            <p>Loading advisor info...</p>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
   
@@ -202,6 +216,7 @@ export default {
       grades: [],
       classRank: 0,
       totalStudents: 0,
+      // percentile: 0,
       anonymousPeers: [],
       chartInstance: null,
     };
@@ -214,10 +229,10 @@ export default {
       if (this.totalStudents === 0) return 0;
       return ((this.totalStudents - this.classRank) / this.totalStudents) * 100;
     },
-      selectedCourseName() {
-    const course = this.courses.find(c => c.course_id === this.selectedCourse);
-    return course ? `${course.course_code} - ${course.course_name}` : '';
-  }
+    selectedCourseName() {
+      const course = this.courses.find(c => c.course_id === this.selectedCourse);
+      return course ? `${course.course_code} - ${course.course_name}` : '';
+    }
   },
   methods: {
     weightedScore(item) {
@@ -242,38 +257,38 @@ export default {
     },
 
     // Fetch grades for selected or default course
-  async fetchGrades(courseId = null) {
-    // Use RESTful path parameter if courseId is provided
-    let url = courseId
-      ? `http://localhost:8080/student/grades/${courseId}`
-      : `http://localhost:8080/student/grades`;
+    async fetchGrades(courseId = null) {
+      // Use RESTful path parameter if courseId is provided
+      let url = courseId
+        ? `http://localhost:8080/student/grades/${courseId}`
+        : `http://localhost:8080/student/grades`;
 
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        credentials: 'include', // important for session-based auth
-      });
-      if (!res.ok) throw new Error('Failed to fetch grades');
-      const data = await res.json();
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          credentials: 'include', // important for session-based auth
+        });
+        if (!res.ok) throw new Error('Failed to fetch grades');
+        const data = await res.json();
 
-      this.grades = data.map(item => ({
-        component: item.component,
-        score: Number(item.score) || 0,
-        maxMark: Number(item.max_mark) || 1,
-        weight: Number(item.weight) || 0,
-        scmId: item.scm_id
-      }));
+        this.grades = data.map(item => ({
+          component: item.component,
+          score: Number(item.score) || 0,
+          maxMark: Number(item.max_mark) || 1,
+          weight: Number(item.weight) || 0,
+          scmId: item.scm_id
+        }));
 
-      if (data.length > 0 && data[0].course_id) {
-        this.courseId = data[0].course_id;
-        this.selectedCourse = data[0].course_id;
-        console.log('✅ courseId loaded from grades:', this.courseId);
+        if (data.length > 0 && data[0].course_id) {
+          this.courseId = data[0].course_id;
+          this.selectedCourse = data[0].course_id;
+          console.log('✅ courseId loaded from grades:', this.courseId);
+        }
+      } catch (err) {
+        console.error(err);
+        this.grades = [];
       }
-    } catch (err) {
-      console.error(err);
-      this.grades = [];
-    }
-  },
+    },
 
 
     // Handler when course dropdown changes
@@ -282,6 +297,7 @@ export default {
       this.courseId = this.selectedCourse;
       await this.fetchGrades(this.selectedCourse);
       await this.fetchRanking();
+      await this.fetchPeers();
     },
 
     // Fetch student's ranking data
@@ -293,28 +309,54 @@ export default {
         }
 
         const res = await fetch(`http://localhost:8080/student/ranking/${courseId}`, {
+          method: 'GET',
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Failed to fetch ranking');
         const data = await res.json();
-        this.classRank = data.rank || 0;
-        this.totalStudents = data.total_students || 0;
+
+        if (data.rank === 'No ranking data available.') {
+          this.classRank = 'No ranking data available.';
+          this.totalStudents = 0;
+        } else {
+          this.classRank = data.rank || 0;
+          this.totalStudents = data.total_students || 0;
+        }
+
         if (this.activeTab === 'ranking') this.initChart();
       } catch (err) {
         console.error(err);
+        this.classRank = 'No ranking data available.';
+        this.totalStudents = 0;
       }
     },
 
     // Fetch anonymous peer data
     async fetchPeers() {
       try {
-        const res = await fetch('http://localhost:8080/student/peers', {
+        const courseId = this.selectedCourse;
+        console.log('[fetchPeers] Selected Course ID:', courseId);
+
+        if (!courseId) throw new Error('Course ID is required');
+
+        const res = await fetch(`http://localhost:8080/student/peers/${courseId}`, {
+          method: 'GET',
           credentials: 'include',
         });
+
         if (!res.ok) throw new Error('Failed to fetch peers');
-        this.anonymousPeers = await res.json();
+
+        const peers = await res.json();
+        console.log('[fetchPeers] Raw peers response:', peers);
+        if (Array.isArray(peers)) {
+          this.anonymousPeers = peers;
+          console.log(`[fetchPeers] Peers count: ${peers.length}`);
+        } else {
+          console.warn('[fetchPeers] Response is not an array, defaulting to empty array');
+          this.anonymousPeers = [];
+        }
       } catch (err) {
-        console.error(err);
+        console.error('[fetchPeers] Error occurred:', err);
         this.anonymousPeers = [];
       }
     },
@@ -414,25 +456,22 @@ export default {
     },
   },
   async mounted() {
-  this.loadStudentData();
-  await this.fetchCourses(); 
-  await this.fetchAdvisor();
+    this.loadStudentData();
+    await this.fetchCourses(); 
+    await this.fetchAdvisor();
 
 
-  // After courses are loaded, select first course if none selected
-  if (!this.selectedCourse && this.courses.length > 0) {
-    const firstCourse = this.courses[0];
-    this.selectedCourse = firstCourse.course_id;
-    this.courseId = firstCourse.course_id;
-  }
+    // After courses are loaded, select first course if none selected
+    if (!this.selectedCourse && this.courses.length > 0) {
+      const firstCourse = this.courses[0];
+      this.selectedCourse = firstCourse.course_id;
+      this.courseId = firstCourse.course_id;
+    }
 
-  // Fetch grades for selected course
-  if (this.selectedCourse) {
-    await this.fetchGrades(this.selectedCourse);
-  }
-
-  this.fetchRanking();
-  this.fetchPeers();
+    // Fetch grades for selected course
+    if (this.selectedCourse) {
+      await this.onCourseChange();
+    }
   },
 };
 </script>

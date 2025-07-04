@@ -268,7 +268,11 @@ CREATE TABLE `student_courses` (
 
 INSERT INTO `student_courses` (`id`, `stud_id`, `course_id`) VALUES
 (1, 1, 1),
-(2, 1, 2);
+(2, 1, 2),
+(3, 2, 1),
+(4, 2, 2),
+(5, 3, 1),
+(6, 3, 2),
 
 -- --------------------------------------------------------
 

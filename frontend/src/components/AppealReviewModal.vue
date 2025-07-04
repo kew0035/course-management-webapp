@@ -3,11 +3,13 @@
     <div class="modal-content">
       <h3>Appeal Review</h3>
       <p><strong>Student:</strong> {{ student.name }} ({{ student.matricNo }})</p>
-      <p><strong>Component:</strong> {{ component }}</p>
+      <p><strong>Appeal For:</strong> {{ component }}</p>
       <p><strong>Reason:</strong> {{ appeal.reason }}</p>
-
-      <button class="accept-btn" @click="$emit('respond', 'approved')">✔ Accept</button>
-      <button class="reject-btn" @click="$emit('respond', 'rejected')">✖ Reject</button>
+      
+      <div class="decision-buttons">
+        <div><button class="approve-btn" @click="$emit('respond', 'approved')">✔ Accept</button></div>
+        <div><button class="reject-btn" @click="$emit('respond', 'rejected')">✖ Reject</button></div>
+      </div>
       <button class="close-btn" @click="$emit('close')">Close</button>
     </div>
   </div>
@@ -25,16 +27,6 @@ export default {
 
 
 <style scoped>
-.review-btn {
-  padding: 6px 12px;
-  background-color: #3a86ff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
 .modal {
   position: fixed;
   top: 0; left: 0;
@@ -53,18 +45,10 @@ export default {
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.readonly {
-  background: #f5f5f5;
-  padding: 10px;
-  border-radius: 4px;
-  font-style: italic;
-  margin-bottom: 10px;
-}
-
 .decision-buttons {
   display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  justify-content: flex-start;
+  gap:1em;
 }
 
 .approve-btn {

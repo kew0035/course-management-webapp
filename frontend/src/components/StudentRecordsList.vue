@@ -24,53 +24,61 @@
                 <div class="comp-score">{{ score }}/ {{ getComponentMax(comp) }}</div>
               </div>
             </div>
+           
           </td>
           <td>
-            <div
-              v-for="(score, comp) in getFilteredMarks(student.continuousMarks)"
-              :key="comp"
-              class="appeal-icon-container"
-            >
-              <i
-                v-if="hasAppeal(student, comp)"
-                class="bi bi-envelope-exclamation-fill appeal-icon"
-                title="View Appeal"
-                @click="openAppealModal(student, comp)"
-              ></i>
+  <div
+    v-for="(score, comp) in getFilteredMarks(student.continuousMarks)"
+    :key="comp"
+    class="appeal-icon-container"
+  >
+    <i
+      v-if="hasAppeal(student, comp) && getAppealStatus(student, comp) === 'pending'"
+      class="bi bi-envelope-exclamation-fill appeal-icon"
+      title="View Appeal"
+      @click="openAppealModal(student, comp)"
+    ></i>
+  </div>
+</td>
+          <!-- <td>
+              <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"  class="conass-container">
+                <div v-if="hasAppeal(student, comp)" class="appeal-action-container">
+                  <span class="appeal-reason"><i class="bi bi-envelope-exclamation-fill appeal-icon" ></i> {{ getAppealReason(student, comp) }}</span>
+                  <button class="accept-btn" @click="$emit('respond-appeal', student, comp, 'approved')">✔ Accept</button>
+                  <button class="reject-btn" @click="$emit('respond-appeal', student, comp, 'rejected')">✖ Reject</button>
+              </div>
             </div>
-          </td>
+          </td> -->
           <td>{{ student.finalExam }}</td>
           <td><button class="edit-btn" @click="$emit('edit-student', student)">Edit</button></td>
           <td>{{ calculateTotalScore(student).toFixed(2) }}%</td>
         </tr>
       </tbody>
     </table>
+      <AppealReviewModal
+        v-if="showModal"
+        :student="selectedStudent"
+        :component="selectedComponent"
+        :appeal="selectedAppeal"
+        @close="closeModal"
+        @respond="handleResponse"
+      />
   </section>
-
-  <AppealReviewModal
-    v-if="showModal"
-    :student="selectedStudent"
-    :component="selectedComponent"
-    :appeal="selectedAppeal"
-    @close="closeModal"
-    @respond="handleResponse"
-  />
 </template>
 
 <script>
 import AppealReviewModal from './AppealReviewModal.vue';
-
 export default {
   name: "StudentRecordsList",
-  data() {
-    return {
-      showModal: false,
-      selectedStudent: null,
-      selectedComponent: null,
-      selectedAppeal: null,
-    };
-  },
-  components: { AppealReviewModal },
+data() {
+  return {
+    showModal: false,
+    selectedStudent: null,
+    selectedComponent: null,
+    selectedAppeal: null,
+  };
+},
+components: {AppealReviewModal},
   props: {
     students: Array,
     components: Array,
@@ -111,40 +119,46 @@ export default {
       if (percentage >= 50) return "mid-score";
       return "low-score";
     },
-    getScmId(matricNo, componentName) {
+
+   getScmId(matricNo, componentName) {
+      // Match how scm_id is stored/generated in your DB (adjust if needed)
       return `${matricNo}_${componentName}`;
     },
-    hasAppeal(student, component) {
-      const scmId = this.getScmId(student.matricNo, component);
-      return !!this.appeals[scmId];
-    },
-    getAppealReason(student, component) {
-      const scmId = this.getScmId(student.matricNo, component);
-      return this.appeals[scmId]?.reason || '';
-    },
-    openAppealModal(student, component) {
-      const scmId = this.getScmId(student.matricNo, component);
-      this.selectedStudent = student;
-      this.selectedComponent = component;
-      this.selectedAppeal = this.appeals[scmId];
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-      this.selectedStudent = null;
-      this.selectedComponent = null;
-      this.selectedAppeal = null;
-    },
-    handleResponse(status) {
-      this.$emit('respond-appeal', this.selectedStudent, this.selectedComponent, status);
-      this.closeModal();
-    },
+  hasAppeal(student, component) {
+    const scmId = this.getScmId(student.matricNo, component);
+    return !!this.appeals[scmId];
+  },
+  getAppealStatus(student, component) {
+  const scmId = this.getScmId(student.matricNo, component);
+  return this.appeals[scmId]?.status || '';
+  },
+  getAppealReason(student, component) {
+    const scmId = this.getScmId(student.matricNo, component);
+    return this.appeals[scmId]?.reason || '';
+  },
+  openAppealModal(student, component) {
+    const scmId = this.getScmId(student.matricNo, component);
+    this.selectedStudent = student;
+    this.selectedComponent = component;
+    this.selectedAppeal = this.appeals[scmId];
+    this.showModal = true;
+  },
+  closeModal() {
+    this.showModal = false;
+    this.selectedStudent = null;
+    this.selectedComponent = null;
+    this.selectedAppeal = null;
+  },
+  handleResponse(status) {
+    this.$emit('respond-appeal', this.selectedStudent, this.selectedComponent, status);
+    this.closeModal();
+  },
   },
 };
 </script>
 
-<style scoped>
-.high-score, .mid-score, .low-score {
+<style>
+.high-score, .mid-score, .low-score{
   font-weight: bold;
   padding: 4px;
   border-radius: 4px;
@@ -162,7 +176,7 @@ export default {
   background-color: red; /* light red */
 }
 
-.conass-percent-color {
+.conass-percent-color{
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -172,8 +186,8 @@ export default {
   gap: 1em;
   box-sizing: border-box;
 }
-
-.appeal-action-container {
-  padding: 0.5em 0;
+.appeal-icon-container{
+  padding:0.5em 0;
 }
+
 </style>

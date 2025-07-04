@@ -22,8 +22,8 @@ class StudentService {
         return $this->dao->getRanking($courseId);
     }
 
-    public function getPeers() {
-        return $this->dao->getPeers();
+    public function getPeers($courseId) {
+        return $this->dao->getPeers($courseId);
     }
     
     public function getCourses() {
@@ -33,11 +33,10 @@ class StudentService {
         return $this->dao->getGradesByCourse($courseId);
     }
 
-
-    public function calculateGPAById(): float {
-        $studId = $this->dao->getStudentId();
-        return $this->dao->calculateGPA($studId);
-    }
+    // public function calculateGPAById(): float {
+    //     $studId = $this->dao->getStudentId();
+    //     return $this->dao->calculateGPA($studId);
+    // }
 
     public function getAdvisorNotes() {
         return $this->dao->getAdvisorNotes();

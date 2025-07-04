@@ -55,7 +55,7 @@ class LecturerDAO {
             }
         }
 
-        return array_values($students); // 重排索引为数字数组
+        return array_values($students);
     }
 
     // public function updateScores($matricNo, $componentsJson, $finalExam, $courseId) {
