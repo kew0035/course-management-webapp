@@ -6,6 +6,7 @@
     </header>
     <div class="dashboard-container">
       <h2>Welcome, {{ lecturerName }}</h2>
+      
       <nav class="tab-nav">
         <button
           v-for="tab in tabs"
@@ -17,16 +18,24 @@
         </button>
       </nav>
 
+      <div class="search-container">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search student by name..."
+            class="search-input"
+          />
+        </div>
 
-      <StudentRecordsList
-        v-if="activeTab === 'students'"
-        :students="students"
-        :components="components"
-        :finalExamMax="finalExamMax"
-        :appeals="appeals"
-        @edit-student="openEditScoreModal"
-        @respond-appeal="handleAppealResponse"
-      />
+        <StudentRecordsList
+          v-if="activeTab === 'students'"
+          :students="filteredStudents"
+          :components="components"
+          :finalExamMax="finalExamMax"
+          :appeals="appeals"
+          @edit-student="openEditScoreModal"
+          @respond-appeal="handleAppealResponse"
+        />
 
       <ContinuousAssessmentComponents
         v-if="activeTab === 'components'"
@@ -47,7 +56,7 @@
         :averageTotalScore="students.length ? students.reduce((sum, s) => sum + s.totalScore, 0) / students.length : 0"
       />
 
-    <!-- Edit student grades pop-up window -->
+     <!-- Edit student grades pop-up window -->
     <div v-if="showEditModal" class="modal-overlay">
       <div class="modal">
         <h3>Edit Scores for {{ editingStudent.name }}</h3>
@@ -126,6 +135,7 @@ export default {
       showEditModal: false,
       editingStudent: null,
       editingScores: {},
+      searchQuery: "",
 
       showComponentModal: false,
       isEditingComponent: false,
@@ -158,7 +168,17 @@ export default {
       );
       return sum / this.students.length;
     },
+    filteredStudents() {
+      if (!this.searchQuery) {
+        return this.students; 
+      }
+      const query = this.searchQuery.toLowerCase();
+      return this.students.filter((student) =>
+        student.name.toLowerCase().includes(query)
+      );
+    },
   },
+  
   methods: {
     validateScore(compName, maxMark) {
       if (this.editingScores[compName] > maxMark) {
@@ -592,5 +612,18 @@ export default {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.search-container {
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.search-input {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
 }
 </style>
