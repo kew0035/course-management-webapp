@@ -18,14 +18,14 @@
         </button>
       </nav>
 
-      <div class="search-container">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search student by name..."
-            class="search-input"
-          />
-        </div>
+      <div v-if="activeTab === 'students'" class="search-container">
+      <input
+        type="text"
+        v-model="searchQuery"
+        placeholder="Search student by name..."
+        class="search-input"
+      />
+    </div>
 
         <StudentRecordsList
           v-if="activeTab === 'students'"
