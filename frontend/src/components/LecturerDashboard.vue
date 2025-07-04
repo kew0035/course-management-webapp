@@ -468,27 +468,6 @@ export default {
 </script>
 
 <style scoped>
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #1e3a8a;
-  color: white;
-  padding: 1rem 2rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 8px 8px;
-}
-
-.logout-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: white;
-  cursor: pointer;
-}
-
 .custom-toast {
   position: fixed;
   bottom: 30px;
@@ -511,86 +490,6 @@ export default {
 
 .custom-toast.error {
   background: #e74c3c;
-}
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) translateX(-50%);
-  }
-
-  10% {
-    opacity: 1;
-    transform: translateY(0) translateX(-50%);
-  }
-
-  90% {
-    opacity: 1;
-    transform: translateY(0) translateX(-50%);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-30px) translateX(-50%);
-  }
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9998;
-}
-
-.modal {
-  background: #fff;
-  padding: 24px 32px;
-  border-radius: 12px;
-  width: 350px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  animation: fadeIn 0.3s ease-out;
-}
-
-.modal h3 {
-  margin-bottom: 12px;
-  font-size: 1.2rem;
-}
-
-.modal p {
-  margin-bottom: 20px;
-  font-size: 1rem;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.delete-btn {
-  background: #e74c3c;
-  color: white;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.cancel-btn {
-  background: #bdc3c7;
-  color: #2c3e50;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
 }
 
 .search-container {

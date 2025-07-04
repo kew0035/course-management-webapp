@@ -32,8 +32,7 @@
       <section v-if="activeTab === 'marks'">
         <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
         <div v-if="grades.length" class="score-card">
-
-          <table class="styled-table">
+          <table class="students-table">
             <thead>
               <tr>
                 <th>Component</th>
@@ -102,7 +101,7 @@
         <h3 class="section-title">Compare with Coursemates (Anonymous)</h3>
         <div class="score-card">
           <template v-if="Array.isArray(anonymousPeers) && anonymousPeers.length">
-            <table class="styled-table">
+            <table class="components-table">
               <thead>
                 <tr>
                   <th>Anonymous ID</th>
@@ -142,7 +141,7 @@
             <!-- Notes Table -->
             <div class="advisor-notes-section" v-if="advisorNotes.length">
               <h4>Private Notes</h4>
-              <table class="styled-table">
+              <table class="components-table">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -465,77 +464,15 @@ export default {
 </script>
 
 <style scoped>
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #1e3a8a;
-  color: white;
-  padding: 1rem 2rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 8px 8px;
-}
-
-.logout-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: white;
-  cursor: pointer;
-}
-
-.dashboard-container {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9fbff;
-  border-radius: 12px;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-h2,
-h3 {
-  color: #2c3e50;
-  margin-bottom: 15px;
-}
-
 .dropdown-course-container {
   padding: 1em;
 }
-
-.tab-nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.tab-nav button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #dbe8ff;
-  color: #3366cc;
-  border-radius: 20px;
-  font-weight: bold;
-  transition: 0.3s;
-  cursor: pointer;
-}
-
-.tab-nav button.active,
-.tab-nav button:hover {
-  background-color: #3366ff;
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
 .section-title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: #2c3e50;
 }
-
 .score-card {
   background-color: #f9fbff;
   border: 1px solid #e0e6f2;
@@ -543,26 +480,6 @@ h3 {
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   margin-bottom: 1.5rem;
-}
-
-.styled-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-  background-color: white;
-}
-
-.styled-table th,
-.styled-table td {
-  padding: 10px;
-  border: 1px solid #dfe4ea;
-  text-align: center;
-}
-
-.styled-table thead th {
-  background-color: #3a86ff;
-  color: white;
-  font-weight: bold;
 }
 
 .component-name {
@@ -641,11 +558,9 @@ h3 {
   color: #999;
   font-style: italic;
 }
-
 .dropdown-course-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 .dropdown-course-container label {
   display: block;
   margin-bottom: 0.4rem;

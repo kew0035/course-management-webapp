@@ -1,7 +1,9 @@
 <template>
   <div class="page-bg">
     <div class="login-container">
-      <h2>Login</h2>
+      <div id="lock-icon"><h3>🔒</h3></div>
+      <div><h2>  Login</h2></div>
+      
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="username">Username</label>
@@ -13,8 +15,9 @@
           <input id="password" v-model="password" type="password" autocomplete="current-password"
             placeholder="Please enter password" required />
         </div>
-        <button type="submit" class="btn">Login</button>
+        <button type="submit" class="login-btn">Login</button>
       </form>
+    
       <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
     </div>
   </div>
@@ -84,19 +87,9 @@ export default {
 </script>
 
 <style scoped>
-html,
-body {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
 
 .page-bg {
   position: fixed;
-  top: 0;
-  left: 0;
   width: 100vw;
   height: 100vh;
   background-image: url('../assets/background.jpeg');
@@ -109,54 +102,30 @@ body {
   overflow: hidden;
 }
 
-
 .login-container {
-  max-width: 420px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 2rem;
+  width: 25em;
+  height:auto;
+  padding: 1.5rem;
   background: linear-gradient(135deg, #eaf2ff, #ffffff);
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0, 90, 255, 0.1);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  box-sizing: border-box;
-}
-
-
-
-
-.login-container:hover {
-  box-shadow: 0 14px 40px rgba(0, 90, 255, 0.18);
-}
-
-h2 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 2rem;
-  font-weight: 800;
-  font-size: 2.2rem;
-  letter-spacing: 0.8px;
-  position: relative;
-}
-
-h2::before {
-  content: "🔒";
-  font-size: 1.5rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%) translateY(-160%);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
+  width:100%;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .form-group label {
@@ -167,7 +136,7 @@ h2::before {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"] {  
   width: 90%;
   padding: 0.85rem 1rem;
   border-radius: 12px;
@@ -192,7 +161,7 @@ input[type="password"]:focus {
   background-color: #ffffff;
 }
 
-.btn {
+.login-btn {
   width: 100%;
   background: linear-gradient(90deg, #4a90e2, #3578e5);
   color: white;
@@ -207,12 +176,12 @@ input[type="password"]:focus {
   transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-.btn:hover {
+.login-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(58, 108, 220, 0.6);
 }
 
-.btn:active {
+.login-btn:active {
   transform: translateY(0);
   box-shadow: 0 3px 8px rgba(58, 108, 220, 0.5);
 }

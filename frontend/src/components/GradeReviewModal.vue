@@ -6,7 +6,7 @@
 
     <div v-if="showDialog" class="modal">
       <div class="modal-content">
-        <h3>Appeal for {{ componentName }}</h3>
+        <h2>Appeal for {{ componentName }}</h2>
 
         <div v-if="appeal.status">
           <p><strong>Status:</strong> {{ appeal.status }}</p>
@@ -16,7 +16,7 @@
 
         <div v-else>
           <textarea v-model="reason" placeholder="Enter reason for review"></textarea>
-          <button @click="submitAppeal">Submit</button>
+          <button @click="submitAppeal" class="submit-btn">Submit</button>
         </div>
 
         <button class="close-btn" @click="showDialog = false">Close</button>
@@ -110,13 +110,11 @@ export default {
   font-weight: bold;
   cursor: pointer;
 }
-
 .review-btn.submitted {
   background-color: #ccc;
   color: #444;
   cursor: pointer;
 }
-
 .modal {
   position: fixed;
   top: 0;
@@ -128,29 +126,11 @@ export default {
   justify-content: center;
   align-items: center;
 }
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-}
-
 textarea {
   width: 100%;
   height: 80px;
   margin-top: 10px;
 }
-
-.close-btn {
-  margin-top: 10px;
-  background: #aaa;
-  padding: 5px 10px;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
-
 .readonly {
   background: #f5f5f5;
   padding: 10px;

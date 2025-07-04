@@ -1,5 +1,39 @@
-/* style.css */
-/* 容器与排版 */
+/*General*/
+*{
+ margin:0;
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+}
+h2 {
+  font-weight: 700;
+  font-size: 2.4rem;
+  margin-bottom: 1em;
+  text-align: center;
+}
+/*End General*/
+
+/*Login Logout*/
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e3a8a;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.logout-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: white;
+  cursor: pointer;
+}
+/*End Login Logout*/
+
+
 .dashboard-container {
   max-width: 100%;
   padding: 2em;
@@ -11,15 +45,7 @@
   flex-direction: column;
   align-items: center;
 }
-/* 欢迎标题 */
-h2 {
-  font-weight: 700;
-  font-size: 2.4rem;
-  margin-bottom: 1em;
-  text-align: center;
-}
 
-/* 选项卡导航 */
 .tab-nav {
   display: flex;
   justify-content: center;
@@ -128,126 +154,6 @@ h2 {
   color: white;
 }
 
-/* 按钮样式 */
-.edit-btn,
-.delete-btn,
-.add-btn,
-.save-btn,
-.cancel-btn {
-  border-radius: 24px;
-  font-weight: 600;
-  padding: 6px 18px;
-  font-size: 0.9rem;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 3px 8px rgb(58 110 232 / 0.15);
-  user-select: none;
-}
-
-.edit-btn {
-  background: #4a7bf7;
-  color: white;
-  margin-right: 8px;
-}
-
-.edit-btn:hover {
-  background: #365fcc;
-  box-shadow: 0 6px 16px rgb(54 95 204 / 0.35);
-}
-
-.delete-btn {
-  background: #f75959;
-  color: white;
-}
-
-.delete-btn:hover {
-  background: #c74343;
-  box-shadow: 0 6px 16px rgb(199 67 67 / 0.35);
-}
-
-.add-btn {
-  background: #3a6ee8;
-  color: white;
-  padding: 10px 26px;
-  font-size: 1rem;
-  box-shadow: 0 5px 18px rgb(58 110 232 / 0.4);
-  display: inline-block;
-  margin-top: 10px;
-}
-
-.add-btn:hover {
-  background: #2c57b2;
-  box-shadow: 0 8px 25px rgb(44 87 178 / 0.5);
-}
-
-/* 弹窗遮罩 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(50, 66, 120, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1100;
-}
-
-/* 弹窗内容 */
-.modal {
-  background: #fff;
-  padding: 30px 35px;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(58, 110, 232, 0.3);
-  width: 440px;
-  max-width: 90vw;
-  font-weight: 600;
-  color: #34495e;
-  position: relative;
-}
-
-.modal h3 {
-  font-size: 1.8rem;
-  margin-bottom: 25px;
-  color: #3a6ee8;
-  text-align: center;
-  user-select: none;
-}
-
-.modal label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 1rem;
-  color: #2a3e59;
-}
-
-.modal input {
-  width: 90%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 2px solid #a3bffb;
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  color: #2b3e5c;
-  font-weight: 600;
-  user-select: text;
-}
-
-.modal input:focus {
-  outline: none;
-  border-color: #3a6ee8;
-  box-shadow: 0 0 12px #3a6ee833;
-  background: #f9fbff;
-}
-
-/* 输入分数行 */
-.score-input-group {
-  margin-bottom: 18px;
-  position: relative;
-}
-
 .max-mark {
   position: absolute;
   right: 12px;
@@ -257,47 +163,6 @@ h2 {
   font-weight: 500;
 }
 
-/* 弹窗按钮 */
-.modal-buttons {
-  text-align: right;
-  margin-top: 30px;
-}
-
-.modal-buttons button {
-  padding: 10px 22px;
-  margin-left: 12px;
-  border-radius: 24px;
-  border: none;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 5px 15px rgba(58, 110, 232, 0.25);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-  user-select: none;
-}
-
-.save-btn {
-  background: #3a6ee8;
-  color: white;
-}
-
-.save-btn:hover {
-  background: #2e54bb;
-  box-shadow: 0 8px 22px rgba(46, 84, 187, 0.5);
-  transform: translateY(-2px);
-}
-
-.cancel-btn {
-  background: #bdc7d8;
-  color: #34495e;
-}
-
-.cancel-btn:hover {
-  background: #a0b4d0;
-  color: #24334e;
-}
-
-/* 统计数值 */
 .stat-score {
   font-weight: 700;
   font-size: 1.3rem;
@@ -306,7 +171,6 @@ h2 {
   margin-left: 10px;
 }
 
-/* 响应式 */
 @media (max-width: 760px) {
   .dashboard-container {
     padding: 25px 20px;
@@ -336,3 +200,201 @@ h2 {
     padding: 25px 20px;
   }
 }
+
+/*Modal*/
+.modal {
+  background: #fff;
+  padding: 2em;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(58, 110, 232, 0.3);
+  width: 30em;
+  max-width: 100%;
+  font-weight: 600;
+  color: #34495e;
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+.modal h3 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: #1a43c8;
+}
+
+.modal p {
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(50, 66, 120, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) translateX(-50%);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) translateX(-50%);
+  }
+}
+
+.modal label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  color: #2a3e59;
+}
+
+.modal input {
+  width: 95%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 2px solid #a3bffb;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  color: #2b3e5c;
+  font-weight: 600;
+  user-select: text;
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: #3a6ee8;
+  box-shadow: 0 0 12px #3a6ee833;
+  background: #f9fbff;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 1em 0.5em 0.5em 0.5em;
+}
+
+.modal-buttons button {
+  /* padding: 10px 22px; */
+  /* margin-left: 12px; */
+  border-radius: 24px;
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(58, 110, 232, 0.25);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+  user-select: none;
+}
+
+.score-input-group {
+  margin-bottom: 18px;
+  position: relative;
+}
+/*End Modal*/
+
+/*Buttons */
+/* 按钮样式 */
+.edit-btn,
+.delete-btn,
+.add-btn,
+.save-btn,
+.cancel-btn,
+.submit-btn,
+.close-btn {
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  padding: 0.5em 1em;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 8px rgb(58 110 232 / 0.15);
+  user-select: none;
+}
+
+.edit-btn {
+  background: #4a7bf7;
+  margin-right: 8px;
+}
+.edit-btn:hover {
+  background: #365fcc;
+  box-shadow: 0 6px 16px rgb(54 95 204 / 0.35);
+}
+
+.delete-btn {
+  background: #e74c3c;
+}
+.delete-btn:hover {
+  background: #c74343;
+  box-shadow: 0 6px 16px rgb(199 67 67 / 0.35);
+}
+
+.add-btn {
+  background: #3a6ee8;
+  font-size: 1rem;
+  box-shadow: 0 5px 18px rgb(58 110 232 / 0.4);
+  display: inline-block;
+  margin-top: 10px;
+}
+.add-btn:hover {
+  background: #2c57b2;
+  box-shadow: 0 8px 25px rgb(44 87 178 / 0.5);
+}
+
+.cancel-btn {
+  background: #bdc3c7;
+  color: #2c3e50;
+}
+.cancel-btn:hover {
+  background: #a0b4d0;
+  color: #24334e;
+}
+
+.save-btn {
+  background: #3a6ee8;
+  color: white;
+}
+.save-btn:hover {
+  background: #2e54bb;
+  box-shadow: 0 8px 22px rgba(46, 84, 187, 0.5);
+  transform: translateY(-2px);
+}
+
+.submit-btn{
+  background: #3a6ee8;
+  color: white;
+}
+.close-btn {
+  margin-top: 10px;
+  background: #aaa;
+  color: white;
+}
+
+/*End Buttons*/

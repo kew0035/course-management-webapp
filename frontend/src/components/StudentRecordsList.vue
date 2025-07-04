@@ -167,17 +167,14 @@ export default {
 
 .high-score {
   background-color: rgb(10, 198, 10);
-  /* light green */
 }
 
 .mid-score {
   background-color: rgb(255, 213, 0);
-  /* light orange */
 }
 
 .low-score {
   background-color: red;
-  /* light red */
 }
 
 .conass-percent-color {
