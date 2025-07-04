@@ -1,19 +1,24 @@
 <template>
   <div class="modal">
     <div class="modal-content">
-      <h3>Appeal Review</h3>
-      <p><strong>Student:</strong> {{ student.name }} ({{ student.matricNo }})</p>
-      <p><strong>Appeal For:</strong> {{ component }}</p>
-      <p><strong>Reason:</strong> {{ appeal.reason }}</p>
-      
-      <div class="decision-buttons">
-        <div><button class="approve-btn" @click="$emit('respond', 'approved')">✔ Accept</button></div>
-        <div><button class="reject-btn" @click="$emit('respond', 'rejected')">✖ Reject</button></div>
+      <h3 class="modal-title">📄 Appeal Review</h3>
+
+      <div class="appeal-info">
+        <p><strong>👤 Student:</strong> {{ student.name }} ({{ student.matricNo }})</p>
+        <p><strong>📌 Appeal For:</strong> {{ component }}</p>
+        <p><strong>📝 Reason:</strong> {{ appeal.reason }}</p>
       </div>
+
+      <div class="decision-buttons">
+        <button class="approve-btn" @click="$emit('respond', 'approved')">✔ Accept</button>
+        <button class="reject-btn" @click="$emit('respond', 'rejected')">✖ Reject</button>
+      </div>
+
       <button class="close-btn" @click="$emit('close')">Close</button>
     </div>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -30,67 +35,94 @@ export default {
 .modal {
   position: fixed;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 100%; 
+  height: 100%;
+  max-width: 100%;
+  border-radius: 0;
   background: rgba(0, 0, 0, 0.4);
-  display: flex; justify-content: center; align-items: center;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
   z-index: 9999;
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 95%;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.appeal-info p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #333;
 }
 
 .decision-buttons {
   display: flex;
-  justify-content: flex-start;
-  gap:1em;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.approve-btn,
+.reject-btn {
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.3s;
+  cursor: pointer;
+  margin: 0 5px;
 }
 
 .approve-btn {
-  background-color: #27ae60;
+  background-color: #2ecc71;
   color: white;
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
+}
+
+.approve-btn:hover {
+  background-color: #27ae60;
 }
 
 .reject-btn {
   background-color: #e74c3c;
   color: white;
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
+}
+
+.reject-btn:hover {
+  background-color: #c0392b;
 }
 
 .close-btn {
-  background: #888;
+  background: #7f8c8d;
   color: white;
-  padding: 6px 14px;
   border: none;
+  padding: 8px 14px;
   border-radius: 6px;
-  margin-top: 12px;
+  font-weight: bold;
   float: right;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.status-approved {
-  color: #27ae60;
-  font-weight: bold;
+.close-btn:hover {
+  background-color: #606d70;
 }
 
-.status-rejected {
-  color: #e74c3c;
-  font-weight: bold;
-}
-
-.status-pending {
-  color: #f39c12;
-  font-weight: bold;
-}
 </style>
