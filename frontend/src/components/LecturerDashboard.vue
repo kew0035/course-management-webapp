@@ -1,4 +1,9 @@
 <template>
+  <div>
+      <header class="dashboard-header">
+      <div class="header-title">Student Dashboard</div>
+      <button class="logout-btn" @click="handleLogout" title="Logout">🔓 Logout</button>
+    </header>
   <div class="dashboard-container">
     <h2>Welcome, {{ lecturerName }}</h2>
     <nav class="tab-nav">
@@ -19,15 +24,15 @@
       :finalExamMax="finalExamMax"
       @edit-student="openEditScoreModal"
     /> -->
-<StudentRecordsList
-  v-if="activeTab === 'students'"
-  :students="students"
-  :components="components"
-  :finalExamMax="finalExamMax"
-  :appeals="appeals"
-  @edit-student="openEditScoreModal"
-  @respond-appeal="handleAppealResponse"
-/>
+    <StudentRecordsList
+      v-if="activeTab === 'students'"
+      :students="students"
+      :components="components"
+      :finalExamMax="finalExamMax"
+      :appeals="appeals"
+      @edit-student="openEditScoreModal"
+      @respond-appeal="handleAppealResponse"
+    />
     <ContinuousAssessmentComponents
       v-if="activeTab === 'components'"
       :components="components"
@@ -90,6 +95,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
@@ -476,6 +482,27 @@ export default {
 </script>
 
 <style scoped>
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e3a8a;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+}
+
 .custom-toast {
   position: fixed;
   bottom: 30px;
