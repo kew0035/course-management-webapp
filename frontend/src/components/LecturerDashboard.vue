@@ -29,7 +29,8 @@
 
         <StudentRecordsList
           v-if="activeTab === 'students'"
-          :students="filteredStudents"
+          :students="students"
+          :searchQuery="searchQuery"
           :components="components"
           :finalExamMax="finalExamMax"
           :appeals="appeals"
@@ -167,15 +168,6 @@ export default {
         0
       );
       return sum / this.students.length;
-    },
-    filteredStudents() {
-      if (!this.searchQuery) {
-        return this.students; 
-      }
-      const query = this.searchQuery.toLowerCase();
-      return this.students.filter((student) =>
-        student.name.toLowerCase().includes(query)
-      );
     },
   },
   

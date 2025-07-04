@@ -13,7 +13,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in students" :key="student.matricNo" >
+
+        <tr v-for="student in filteredStudents" :key="student.matricNo" >
           <td>{{ student.matricNo }}</td>
           <td>{{ student.name }}</td>
           <td>
@@ -86,9 +87,19 @@ components: {AppealReviewModal},
       type: Number,
       default: 100,
     },
+    searchQuery: String,
     appeals: {
       type: Object,
       default: () => ({}),
+    },
+  },
+  computed:{
+    filteredStudents() {
+      if (!this.searchQuery) return this.students;
+      const query = this.searchQuery.toLowerCase();
+      return this.students.filter(student =>
+        student.name.toLowerCase().includes(query)
+      );
     },
   },
   methods: {
@@ -119,40 +130,39 @@ components: {AppealReviewModal},
       if (percentage >= 50) return "mid-score";
       return "low-score";
     },
-
-   getScmId(matricNo, componentName) {
+    getScmId(matricNo, componentName) {
       // Match how scm_id is stored/generated in your DB (adjust if needed)
       return `${matricNo}_${componentName}`;
     },
-  hasAppeal(student, component) {
+    hasAppeal(student, component) {
+      const scmId = this.getScmId(student.matricNo, component);
+      return !!this.appeals[scmId];
+    },
+    getAppealStatus(student, component) {
     const scmId = this.getScmId(student.matricNo, component);
-    return !!this.appeals[scmId];
-  },
-  getAppealStatus(student, component) {
-  const scmId = this.getScmId(student.matricNo, component);
-  return this.appeals[scmId]?.status || '';
-  },
-  getAppealReason(student, component) {
-    const scmId = this.getScmId(student.matricNo, component);
-    return this.appeals[scmId]?.reason || '';
-  },
-  openAppealModal(student, component) {
-    const scmId = this.getScmId(student.matricNo, component);
-    this.selectedStudent = student;
-    this.selectedComponent = component;
-    this.selectedAppeal = this.appeals[scmId];
-    this.showModal = true;
-  },
-  closeModal() {
-    this.showModal = false;
-    this.selectedStudent = null;
-    this.selectedComponent = null;
-    this.selectedAppeal = null;
-  },
-  handleResponse(status) {
-    this.$emit('respond-appeal', this.selectedStudent, this.selectedComponent, status);
-    this.closeModal();
-  },
+    return this.appeals[scmId]?.status || '';
+    },
+    getAppealReason(student, component) {
+      const scmId = this.getScmId(student.matricNo, component);
+      return this.appeals[scmId]?.reason || '';
+    },
+    openAppealModal(student, component) {
+      const scmId = this.getScmId(student.matricNo, component);
+      this.selectedStudent = student;
+      this.selectedComponent = component;
+      this.selectedAppeal = this.appeals[scmId];
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.selectedStudent = null;
+      this.selectedComponent = null;
+      this.selectedAppeal = null;
+    },
+    handleResponse(status) {
+      this.$emit('respond-appeal', this.selectedStudent, this.selectedComponent, status);
+      this.closeModal();
+    },
   },
 };
 </script>
