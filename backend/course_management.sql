@@ -579,3 +579,37 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- New Users (IDs 7–17)
+INSERT INTO `users` (`user_id`, `username`, `password`, `role`) VALUES
+(7, 'student4', 'qwer', 'student'),
+(8, 'student5', 'qwer', 'student'),
+(9, 'student6', 'qwer', 'student'),
+(10, 'student7', 'qwer', 'student'),
+(11, 'student8', 'qwer', 'student'),
+(12, 'lecturer2', 'qwer', 'lecturer'),
+(13, 'lecturer3', 'qwer', 'lecturer'),
+(14, 'lecturer4', 'qwer', 'lecturer'),
+(15, 'lecturer5', 'qwer', 'lecturer'),
+(16, 'lecturer6', 'qwer', 'lecturer'),
+(17, 'advisor2', 'qwer', 'advisor'),
+(18, 'advisor3', 'qwer', 'advisor');
+
+INSERT INTO `advisors` (`adv_id`, `user_id`, `adv_name`, `email`) VALUES
+(2, 17, 'Dr. Rahman', 'rahman@utm.my'),
+(3, 18, 'Ms. Lim', 'lim@utm.my');
+
+INSERT INTO `lecturers` (`lec_id`, `user_id`, `lec_name`, `dpt_id`) VALUES
+(2, 12, 'Prof. Chong Wei', 1),
+(3, 13, 'Dr. Nurul Aina', 1),
+(4, 14, 'Mr. Chong Wei', 1),
+(5, 15, 'Dr. Sarah Lim', 1),
+(6, 16, 'Prof. Ali', 1);
+
+INSERT INTO `students` (`stud_id`, `user_id`, `matric_no`, `stud_name`, `adv_id`, `gpa`) VALUES
+(4, 7, 'A22EC0044', 'Tan', 1, 3.00),
+(5, 8, 'A22EC0045', 'Kuan', 2, 3.10),
+(6, 9, 'A22EC0046', 'Kaizuan', 2, 3.20),
+(7, 10, 'A22EC0047', 'Mingze', 3, 3.30),
+(8, 11, 'A22EC0048', 'Steve', 3, 3.40);
