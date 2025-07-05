@@ -14,8 +14,7 @@ npm run serve
 ### Project setup for BackEnd
 ```
 composer install
-download compose
-https://getcomposer.org/download/2.8.9/composer.phar
+Download compose: https://getcomposer.org/download/2.8.9/composer.phar
 ---
 
 ### Run BackEnd
