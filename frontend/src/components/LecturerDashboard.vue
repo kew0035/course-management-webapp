@@ -492,16 +492,4 @@ export default {
   background: #e74c3c;
 }
 
-.search-container {
-  margin-bottom: 1rem;
-  text-align: right;
-}
-
-.search-input {
-  padding: 8px 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 250px;
-}
 </style>

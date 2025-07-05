@@ -26,8 +26,6 @@
         </button>
       </nav>
 
-      <!-- <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3> -->
-
       <!-- Marks Tab -->
       <section v-if="activeTab === 'marks'">
         <h3 class="section-title">Your Course Marks for {{ selectedCourseName }}</h3>
@@ -464,9 +462,7 @@ export default {
 </script>
 
 <style scoped>
-.dropdown-course-container {
-  padding: 1em;
-}
+
 .section-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -481,12 +477,6 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   margin-bottom: 1.5rem;
 }
-
-.component-name {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
 .summary {
   display: flex;
   justify-content: flex-end;
@@ -504,26 +494,6 @@ export default {
 .total-value {
   color: #3a86ff;
   font-weight: 600;
-}
-
-.progress-bar {
-  margin-top: 0.75rem;
-  height: 25px;
-  background-color: #eee;
-  border-radius: 12px;
-  overflow: hidden;
-  width: 100%;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #4caf50 0%, #81c784 100%);
-  text-align: center;
-  color: white;
-  font-weight: 600;
-  transition: width 0.6s ease;
-  line-height: 25px;
-  border-radius: 12px 0 0 12px;
 }
 
 .ranking-card {
@@ -557,41 +527,6 @@ export default {
   text-align: center;
   color: #999;
   font-style: italic;
-}
-.dropdown-course-container {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-.dropdown-course-container label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
-  color: #333;
-  font-size: 1rem;
-}
-
-#course-select {
-  width: 100%;
-  max-width: 320px;
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
-  border: 2px solid #4a90e2;
-  border-radius: 6px;
-  background-color: #fff;
-  color: #333;
-  appearance: none;
-  /* Remove default arrow */
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg%20width%3d%2212%22%20height%3d%227%22%20viewBox%3d%220%200%2012%207%22%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%3e%3cpath%20d%3d%22M6%207L0%200h12L6%207z%22%20fill%3d%22%234a90e2%22/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.8rem center;
-  background-size: 12px 7px;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-}
-
-#course-select:focus {
-  outline: none;
-  border-color: #357ABD;
-  box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
 }
 
 .advisor-info-row {

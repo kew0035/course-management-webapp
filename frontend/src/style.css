@@ -1,4 +1,4 @@
-/*General*/
+/*----------General----------*/
 *{
  margin:0;
  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -10,9 +10,9 @@ h2 {
   margin-bottom: 1em;
   text-align: center;
 }
-/*End General*/
+/*----------End General----------*/
 
-/*Login Logout*/
+/*----------Login Logout----------*/
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -31,21 +31,23 @@ h2 {
   color: white;
   cursor: pointer;
 }
-/*End Login Logout*/
+/*----------End Login Logout----------*/
 
-
+/*----------Main container----------*/
 .dashboard-container {
   max-width: 100%;
   padding: 2em;
   box-shadow: 0 6px 20px rgba(58, 108, 220, 0.15);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #2c3e50;
   display: flex;
   justify-content: center;
   flex-direction: column;
   align-items: center;
 }
+/*----------End Main container----------*/
 
+
+/*----------Navigation Tab----------*/
 .tab-nav {
   display: flex;
   justify-content: center;
@@ -83,8 +85,56 @@ h2 {
   transform: scale(1.05);
   cursor: default;
 }
+/*----------End Navigation Tab----------*/
 
-/* 表格通用 */
+/*----------Course Dropdown----------*/
+.dropdown-course-container {
+  padding: 1em;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.dropdown-course-container label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+#course-select {
+  width: 100%;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: 2px solid #4a90e2;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+#course-select:focus {
+  outline: none;
+  border-color: #357ABD;
+  box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
+}
+/*----------End Course Dropdown----------*/
+/*----------Search Bar----------*/
+.search-container {
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.search-input {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
+}
+/*----------End Search Bar----------*/
+
+/*----------Table: Students table & components table----------*/
 .students-table,
 .components-table {
   width: 100%;
@@ -95,7 +145,6 @@ h2 {
   overflow: hidden;
 }
 
-/* 表头 */
 .students-table thead tr,
 .components-table thead tr {
   background: linear-gradient(90deg, #3a6ee8, #3754d6);
@@ -112,7 +161,6 @@ h2 {
   position: relative;
 }
 
-/* 表格行 - 带阴影的卡片样式 */
 .students-table tbody tr,
 .components-table tbody tr {
   background: white;
@@ -135,7 +183,14 @@ h2 {
   color: #33475b;
   font-weight: 600;
 }
+/*appeal icon in table*/
+.appeal-icon-container {
+  padding: 0.5em 0;
+}
 
+/*----------End Table: Students table & components table----------*/
+
+/*----------Continuous Assesment----------*/
 .conass-container{
   background-color: lightgray;
   border-radius: 1em;
@@ -143,7 +198,6 @@ h2 {
   max-width: 100%;
   overflow: hidden;
 }
-
 .comp-name {
   font-weight: 700;
   color: white;
@@ -154,6 +208,13 @@ h2 {
   color: white;
 }
 
+.component-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+/*----------End Continuous Assesment----------*/
+
+/*----------Score Bars----------*/
 .max-mark {
   position: absolute;
   right: 12px;
@@ -163,6 +224,36 @@ h2 {
   font-weight: 500;
 }
 
+.high-score,
+.mid-score,
+.low-score {
+  font-weight: bold;
+  padding: 4px;
+  border-radius: 4px;
+}
+.high-score {
+  background-color: rgb(10, 198, 10);
+}
+
+.mid-score {
+  background-color: rgb(255, 213, 0);
+}
+
+.low-score {
+  background-color: red;
+}
+
+.conass-percent-color {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5em 0.8em;
+  border-radius: 1em;
+  white-space: nowrap;
+  gap: 1em;
+  box-sizing: border-box;
+}
+
 .stat-score {
   font-weight: 700;
   font-size: 1.3rem;
@@ -170,38 +261,31 @@ h2 {
   user-select: none;
   margin-left: 10px;
 }
+/*----------End Score Bars----------*/
 
-@media (max-width: 760px) {
-  .dashboard-container {
-    padding: 25px 20px;
-  }
-
-  h2 {
-    font-size: 1.8rem;
-  }
-
-  .tab-nav {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .tab-nav button {
-    padding: 10px 18px;
-    font-size: 0.9rem;
-  }
-
-  .students-table,
-  .components-table {
-    font-size: 0.9rem;
-  }
-
-  .modal {
-    width: 90vw;
-    padding: 25px 20px;
-  }
+/*----------Progress Bars----------*/
+.progress-bar {
+  margin-top: 0.75rem;
+  height: 25px;
+  background-color: #eee;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
 }
 
-/*Modal*/
+.progress-fill {
+  height: 100%;
+  background: rgb(10, 198, 10);
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  transition: width 0.6s ease;
+  line-height: 25px;
+  border-radius: 12px 0 0 12px;
+}
+/*----------End Progress Bars----------*/
+
+/*----------Modal----------*/
 .modal {
   background: #fff;
   padding: 2em;
@@ -219,7 +303,6 @@ h2 {
   font-size: 1.2rem;
   color: #1a43c8;
 }
-
 .modal p {
   margin-bottom: 20px;
   font-size: 1rem;
@@ -265,14 +348,12 @@ h2 {
     transform: translateY(-30px) translateX(-50%);
   }
 }
-
 .modal label {
   display: block;
   margin-bottom: 6px;
   font-size: 1rem;
   color: #2a3e59;
 }
-
 .modal input {
   width: 95%;
   padding: 10px 14px;
@@ -284,21 +365,18 @@ h2 {
   font-weight: 600;
   user-select: text;
 }
-
 .modal input:focus {
   outline: none;
   border-color: #3a6ee8;
   box-shadow: 0 0 12px #3a6ee833;
   background: #f9fbff;
 }
-
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding: 1em 0.5em 0.5em 0.5em;
 }
-
 .modal-buttons button {
   /* padding: 10px 22px; */
   /* margin-left: 12px; */
@@ -311,15 +389,13 @@ h2 {
   transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
   user-select: none;
 }
-
 .score-input-group {
   margin-bottom: 18px;
   position: relative;
 }
-/*End Modal*/
+/*----------End Modal----------*/
 
-/*Buttons */
-/* 按钮样式 */
+/*----------Buttons----------*/
 .edit-btn,
 .delete-btn,
 .add-btn,
@@ -397,4 +473,36 @@ h2 {
   color: white;
 }
 
-/*End Buttons*/
+/*----------End Buttons----------*/
+
+/*----------Screen sizes----------*/
+@media (max-width: 760px) {
+  .dashboard-container {
+    padding: 25px 20px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  .tab-nav {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tab-nav button {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+
+  .students-table,
+  .components-table {
+    font-size: 0.9rem;
+  }
+
+  .modal {
+    width: 90vw;
+    padding: 25px 20px;
+  }
+}
+/*----------End Screen sizes----------*/
