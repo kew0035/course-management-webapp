@@ -608,8 +608,8 @@ INSERT INTO `lecturers` (`lec_id`, `user_id`, `lec_name`, `dpt_id`) VALUES
 (6, 16, 'Prof. Ali', 1);
 
 INSERT INTO `students` (`stud_id`, `user_id`, `matric_no`, `stud_name`, `adv_id`, `gpa`) VALUES
-(4, 7, 'A22EC0044', 'Tan', 1, 3.00),
-(5, 8, 'A22EC0045', 'Kuan', 2, 3.10),
-(6, 9, 'A22EC0046', 'Kaizuan', 2, 3.20),
-(7, 10, 'A22EC0047', 'Mingze', 3, 3.30),
+(4, 7, 'A22EC0108', 'Tan', 1, 3.00),
+(5, 8, 'A22EC0062', 'Kuan', 2, 3.10),
+(6, 9, 'A22EC0099', 'Kaizuan', 2, 3.20),
+(7, 10, 'A22EC0069', 'Mingze', 3, 3.30),
 (8, 11, 'A22EC0048', 'Steve', 3, 3.40);
