@@ -177,7 +177,7 @@ class StudentDAO
     {
         $sql = "
             SELECT course_id 
-            FROM student_courses 
+            FROM student_grades 
             WHERE stud_id = (
                 SELECT stud_id 
                 FROM students 
