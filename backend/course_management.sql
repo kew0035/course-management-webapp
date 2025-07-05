@@ -256,23 +256,23 @@ DELIMITER ;
 -- 表的结构 `student_courses`
 --
 
-CREATE TABLE `student_courses` (
-  `id` int(11) NOT NULL,
-  `stud_id` int(11) DEFAULT NULL,
-  `course_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- CREATE TABLE `student_courses` (
+--   `id` int(11) NOT NULL,
+--   `stud_id` int(11) DEFAULT NULL,
+--   `course_id` int(11) DEFAULT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- 转存表中的数据 `student_courses`
 --
 
-INSERT INTO `student_courses` (`id`, `stud_id`, `course_id`) VALUES
-(1, 1, 1),
-(2, 1, 2),
-(3, 2, 1),
-(4, 2, 2),
-(5, 3, 1),
-(6, 3, 2),
+-- INSERT INTO `student_courses` (`id`, `stud_id`, `course_id`) VALUES
+-- (1, 1, 1),
+-- (2, 1, 2),
+-- (3, 2, 1),
+-- (4, 2, 2),
+-- (5, 3, 1),
+-- (6, 3, 2),
 
 -- --------------------------------------------------------
 

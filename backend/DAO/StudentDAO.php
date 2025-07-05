@@ -211,8 +211,8 @@ class StudentDAO
         $sql = "
         SELECT c.course_id, c.course_code, c.course_name
         FROM courses c
-        JOIN student_courses sc ON sc.course_id = c.course_id
-        WHERE sc.stud_id = ?
+        JOIN student_grades sg ON sg.course_id = c.course_id
+        WHERE sg.stud_id = ?
     ";
 
         $stmt = $this->pdo->prepare($sql);
