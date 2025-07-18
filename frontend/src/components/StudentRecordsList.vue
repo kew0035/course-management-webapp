@@ -36,15 +36,6 @@
                 @click="openAppealModal(student, comp)"></i>
             </div>
           </td>
-          <!-- <td>
-              <div v-for="(score, comp) in getFilteredMarks(student.continuousMarks)" :key="comp"  class="conass-container">
-                <div v-if="hasAppeal(student, comp)" class="appeal-action-container">
-                  <span class="appeal-reason"><i class="bi bi-envelope-exclamation-fill appeal-icon" ></i> {{ getAppealReason(student, comp) }}</span>
-                  <button class="accept-btn" @click="$emit('respond-appeal', student, comp, 'approved')">✔ Accept</button>
-                  <button class="reject-btn" @click="$emit('respond-appeal', student, comp, 'rejected')">✖ Reject</button>
-              </div>
-            </div>
-          </td> -->
           <td>{{ student.finalExam }}</td>
           <td><button class="edit-btn" @click="$emit('edit-student', student)">Edit</button></td>
           <td>{{ calculateTotalScore(student).toFixed(2) }}%</td>

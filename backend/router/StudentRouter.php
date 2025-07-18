@@ -151,8 +151,8 @@ return function (App $app) {
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new \DAO\StudentDAO($pdo, (int)$userId);
-            $service = new \Service\StudentService($dao);
+            $dao = new StudentDAO($pdo, (int)$userId);
+            $service = new StudentService($dao);
 
             try {
                 $notes = $service->getAdvisorNotes();

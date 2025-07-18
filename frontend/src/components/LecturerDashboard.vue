@@ -14,6 +14,7 @@
         </button>
       </nav>
 
+      <h3>{{ courseCode }}: {{ courseName }}</h3><br>
       <div v-if="activeTab === 'students'" class="search-container">
         <input type="text" v-model="searchQuery" placeholder="Search student by name..." class="search-input" />
       </div>
@@ -93,6 +94,8 @@ export default {
   data() {
     return {
       lecturerName: 'Guest',
+      courseName: '',
+      courseCode: '',
       finalExamMax: 100,
       tabs: [
         { key: "students", label: "Student Records & Total Scores" },
@@ -141,6 +144,23 @@ export default {
   },
 
   methods: {
+    async fetchCourseDetails() {
+    try {
+    const res = await fetch("http://localhost:8080/lecturer/course-name", {
+      credentials: 'include'
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch course name");
+
+    const data = await res.json();
+    this.courseName = data.course_name;
+    this.courseCode = data.course_code;
+  } catch (error) {
+    console.error("❌ Failed to load course name:", error);
+    this.courseName = "Unknown Course";
+    this.courseCode = "";
+  }
+},
     validateScore(compName, maxMark) {
       if (this.editingScores[compName] > maxMark) {
         this.editingScores[compName] = maxMark;
@@ -455,6 +475,7 @@ export default {
 
   },
   mounted() {
+    this.fetchCourseDetails();
     this.fetchComponents();
     this.fetchStudents();
     this.fetchAppeals();

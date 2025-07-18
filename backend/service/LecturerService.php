@@ -7,35 +7,38 @@ use DAO\LecturerDAO;
 class LecturerService
 {
     private $dao;
-    private $courseId = 1;
 
     public function __construct(LecturerDAO $dao)
     {
         $this->dao = $dao;
     }
+
+    public function getCourseDetails(){
+        return $this->dao->getCourseDetails();
+    }
     public function getStudents()
     {
-        return $this->dao->getStudentsByCourseId($this->courseId);
+        return $this->dao->getStudentsByCourseId();
     }
     public function updateScores($matricNo, $continuousMarksJson, $finalExam)
     {
-        return $this->dao->updateScores($matricNo, $continuousMarksJson, $finalExam, $this->courseId);
+        return $this->dao->updateScores($matricNo, $continuousMarksJson, $finalExam);
     }
     public function getComponents()
     {
-        return $this->dao->getComponentsByCourseId($this->courseId);
+        return $this->dao->getComponentsByCourseId();
     }
     public function saveComponent($component, $maxMark, $weight)
     {
         $weight = (int)$weight;
-        return $this->dao->saveComponent($this->courseId, $component, $maxMark, $weight);
+        return $this->dao->saveComponent( $component, $maxMark, $weight);
     }
     public function deleteComponent($component)
     {
-        return $this->dao->deleteComponent($this->courseId, $component);
+        return $this->dao->deleteComponent( $component);
     }
     public function syncStudentMarks()
     {
-        return $this->dao->syncStudentMarks($this->courseId);
+        return $this->dao->syncStudentMarks();
     }
 }
