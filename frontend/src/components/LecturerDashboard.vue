@@ -319,18 +319,24 @@ export default {
     },
     openAddComponentModal() {
       this.isEditingComponent = false;
-      this.componentForm = { name: "", maxMark: 0, weight: 0 };
+      this.componentForm = { name: "", maxMark: 0, weight: 0 , };
       this.showComponentModal = true;
     },
     openEditComponentModal(comp) {
       this.isEditingComponent = true;
-      this.componentForm = { ...comp };
+      this.componentForm = {
+    name: comp.name,
+    originalName: comp.name, // ✅ 这句是关键
+    maxMark: comp.maxMark,
+    weight: comp.weight
+  };
       this.showComponentModal = true;
     },
 
     async saveComponent(componentToSave) {
       const payload = {
         name: componentToSave.name.trim(),
+        originalName: componentToSave.originalName || componentToSave.name,
         maxMark: parseInt(componentToSave.maxMark),
         weight: parseInt(componentToSave.weight),
       };

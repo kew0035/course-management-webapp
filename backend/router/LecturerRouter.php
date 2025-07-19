@@ -140,6 +140,7 @@ return function (App $app) {
 
             $data = json_decode($request->getBody()->getContents(), true);
             $component = trim($data['name'] ?? '');
+            $originalName = trim($data['originalName'] ?? '') ?: null;
             $maxMark = (int)($data['maxMark'] ?? 0);
             $weight = (int)($data['weight'] ?? 0);
 
@@ -152,7 +153,7 @@ return function (App $app) {
             $service = new LecturerService($dao);
 
             try {
-                $service->saveComponent($component, $maxMark, $weight);
+                $service->saveComponent($component, $maxMark, $weight, $originalName);
                 $response->getBody()->write(json_encode(['message' => 'Component saved']));
                 return $response->withHeader('Content-Type', 'application/json');
             } catch (Exception $e) {

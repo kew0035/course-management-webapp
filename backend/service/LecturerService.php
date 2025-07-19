@@ -28,10 +28,10 @@ class LecturerService
     {
         return $this->dao->getComponentsByCourseId();
     }
-    public function saveComponent($component, $maxMark, $weight)
+    public function saveComponent($component, $maxMark, $weight, $originalName)
     {
         $weight = (int)$weight;
-        return $this->dao->saveComponent( $component, $maxMark, $weight);
+        return $this->dao->saveComponent( $component, $maxMark, $weight, $originalName);
     }
     public function deleteComponent($component)
     {
