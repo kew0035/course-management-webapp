@@ -100,7 +100,7 @@ class StudentDAO
         $studentTotalScore = $stmt->fetchColumn();
 
         // If the student doesn't have a score for the course, return a default empty value
-        if ($studentTotalScore === false) {
+        if ($studentTotalScore === false || $studentTotalScore === null || floatval($studentTotalScore) === 0.0) {
             return [
                 'rank' => 'No ranking data available.',
                 'total_students' => 0
