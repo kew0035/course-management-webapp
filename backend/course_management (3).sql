@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2025-07-19 06:50:07
+-- 生成日期： 2025-07-19 07:13:36
 -- 服务器版本： 8.0.25
 -- PHP 版本： 8.0.6
 
@@ -448,7 +448,14 @@ INSERT INTO `student_grades` (`sg_id`, `stud_id`, `course_id`, `continuous_total
 (26, 18, 2, '0.00', '0.00', NULL, NULL),
 (27, 19, 2, '0.00', '0.00', NULL, NULL),
 (28, 20, 2, '0.00', '0.00', NULL, NULL),
-(29, 1, 3, '60.00', '100.00', 90, 'A+');
+(29, 1, 3, '60.00', '100.00', 90, 'A+'),
+(30, 1, 4, '60.00', '100.00', 90, 'A+'),
+(31, 1, 5, '47.00', '60.00', 65, 'B'),
+(32, 1, 6, '36.00', '100.00', 76, 'A-'),
+(33, 2, 3, '62.00', '100.00', 90, 'A+'),
+(34, 2, 4, '42.00', '75.00', 66.6, 'B'),
+(35, 2, 5, '58.00', '85.00', 784.4, 'A'),
+(36, 2, 6, '47.00', '60.00', 64.1, 'B-');
 
 -- --------------------------------------------------------
 
@@ -657,7 +664,7 @@ ALTER TABLE `student_continuous_marks`
 -- 使用表AUTO_INCREMENT `student_grades`
 --
 ALTER TABLE `student_grades`
-  MODIFY `sg_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `sg_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- 使用表AUTO_INCREMENT `users`
