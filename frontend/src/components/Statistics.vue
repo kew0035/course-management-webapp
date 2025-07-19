@@ -11,6 +11,10 @@
     <ScorePieChart v-if="hasScores && distribution && Object.keys(distribution).length > 0"
       :distribution="distribution" />
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6ed5f82a37519a945ea6616a5505abd34a987477
 
   </section>
 </template>
