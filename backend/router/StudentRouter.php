@@ -102,12 +102,14 @@ return function (App $app) {
             $dao = new StudentDAO($pdo, (int)$userId);
             $service = new StudentService($dao);
 
-            $enrolledCourseId = $dao->getCourseIdByUserId($userId);
-
-            if ($enrolledCourseId != $courseId) {
-                $response->getBody()->write(json_encode(['message' => 'Student is not enrolled in any course']));
+            $courses = $dao->getCourses();
+            $enrolledCourseIds = array_column($courses, 'course_id');
+            
+            if (!in_array($courseId, $enrolledCourseIds)) {
+                $response->getBody()->write(json_encode(['message' => 'Student is not enrolled in the selected course']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
+            
 
             try {
                 $peers = $service->getPeers($courseId);
