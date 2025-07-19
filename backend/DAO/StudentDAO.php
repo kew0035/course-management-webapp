@@ -272,21 +272,26 @@ class StudentDAO
         }
     }
 
-    public function getAppealByScmId(int $scmId, int $userId): ?array
+    public function getAppealByScmId($scmId, $courseId, $userId): ?array
     {
         $stmt = $this->pdo->prepare("
-            SELECT ga.status, ga.reason
-            FROM grade_appeals ga
-            JOIN student_continuous_marks scm ON ga.scm_id = scm.scm_id
-            JOIN student_grades sg ON scm.sg_id = sg.sg_id
-            JOIN students s ON sg.stud_id = s.stud_id
-            WHERE ga.scm_id = ? AND s.user_id = ?
-        ");
-        $stmt->execute([$scmId, $userId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        SELECT ga.status, ga.reason
+        FROM grade_appeals ga
+        JOIN student_continuous_marks scm ON ga.scm_id = scm.scm_id
+        JOIN student_grades sg ON scm.sg_id = sg.sg_id
+        JOIN students s ON sg.stud_id = s.stud_id
+        WHERE ga.scm_id = :scm_id 
+          AND sg.course_id = :course_id 
+          AND s.user_id = :user_id
+    ");
+    $stmt->execute([
+        'scm_id' => $scmId,
+        'course_id' => $courseId,
+        'user_id' => $userId
+    ]);
 
-        return $result ?: null;
-    }
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
 
     public function isScmOwnedByUser($scm_id, $userId)
     {
@@ -301,15 +306,23 @@ class StudentDAO
         return $stmt->fetch() !== false;
     }
 
-    public function appealExists($scm_id)
+    public function appealExists($scm_id, $course_id)
     {
-        $stmt = $this->pdo->prepare("SELECT 1 FROM grade_appeals WHERE scm_id = ? LIMIT 1");
-        $stmt->execute([$scm_id]);
+        $stmt = $this->pdo->prepare("
+            SELECT 1 FROM grade_appeals ga
+            JOIN student_continuous_marks scm ON ga.scm_id = scm.scm_id
+            JOIN student_grades sg ON scm.sg_id = sg.sg_id
+            WHERE ga.scm_id = ? AND sg.course_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$scm_id, $course_id]); 
         return $stmt->fetch() !== false;
     }
+    
 
     public function submitAppeal($scm_id, $reason)
     {
+        
         $stmt = $this->pdo->prepare("
             INSERT INTO grade_appeals (scm_id, reason, status) 
             VALUES (?, ?, 'pending')

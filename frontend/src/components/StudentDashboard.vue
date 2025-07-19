@@ -48,9 +48,16 @@
                 <td>{{ item.maxMark }}</td>
                 <td>{{ item.weight }}</td>
                 <td>{{ weightedScore(item).toFixed(2) }}</td>
-                <td>
-                  <GradeReviewModal :courseId="courseId" :scmId="item.scmId" />
-                </td>
+                <td v-if="item.scmId !== null">
+    <GradeReviewModal
+      :courseId="Number(courseId)"
+      :scmId="item.scmId"
+      :componentName="item.component"
+    />
+  </td>
+  <td v-else>
+    <span style="color: gray">Not Applicable</span>
+  </td>
               </tr>
             </tbody>
           </table>
@@ -215,7 +222,7 @@ export default {
       return ((this.totalStudents - this.classRank) / this.totalStudents) * 100;
     },
     selectedCourseName() {
-      const course = this.courses.find(c => c.course_id === this.selectedCourse);
+      const course = this.courses.find(c => Number(c.course_id) === this.selectedCourse);
       return course ? `${course.course_code} - ${course.course_name}` : '';
     }
   },
@@ -381,6 +388,7 @@ export default {
         this.studentName = userData.name || 'Student';
         this.userId = userData.id;
         this.courseId = userData.courseId;
+        this.selectedCourse = Number(userData.courseId);
         console.log(this.courseId);
       }
     },

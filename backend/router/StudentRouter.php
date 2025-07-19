@@ -168,46 +168,61 @@ return function (App $app) {
 
         $group->post('/appeal', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
-
+        
             if (!$userId) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
-
+        
             $data = $request->getParsedBody();
             $scm_id = $data['scm_id'] ?? null;
+            $course_id = $data['course_id'] ?? null;
             $reason = $data['reason'] ?? null;
-
+        
+            if (!$scm_id || !$course_id || !$reason) {
+                $response->getBody()->write(json_encode(['message' => 'Missing required fields']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+        
             $dao = new StudentDAO($pdo, (int)$userId);
             $service = new StudentService($dao);
-
-            $result = $service->submitAppeal($scm_id, $reason, $userId);
-
+        
+            $result = $service->submitAppeal($scm_id, $course_id, $reason, $userId);
+            
+        
             $response->getBody()->write(json_encode(['message' => $result['message']]));
             return $response->withStatus($result['status'])->withHeader('Content-Type', 'application/json');
         });
+        
+        
+        
 
 
-        $group->get('/appeal/{scm_id}', function (Request $request, Response $response, array $args) use ($pdo) {
+        $group->get('/appeal', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
-
+        
             if (!$userId) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
-
+        
+            $params = $request->getQueryParams();
+            $scmId = $params['scm_id'] ?? null;
+            $courseId = $params['course_id'] ?? null;
+        
+            if (!$scmId || !$courseId) {
+                $response->getBody()->write(json_encode(['message' => 'Missing scm_id or course_id']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+        
             $dao = new StudentDAO($pdo, (int)$userId);
             $service = new StudentService($dao);
-            $scm_id = (int)$args['scm_id'];
-            $appeal = $service->getAppealByScmId($scm_id, $userId);
-
-            if ($appeal) {
-                $response->getBody()->write(json_encode($appeal));
-            } else {
-                $response->getBody()->write(json_encode([])); // No appeal found
-            }
-
+        
+            $appeal = $service->getAppealByScmId($scmId, $courseId, $userId);
+        
+            $response->getBody()->write(json_encode($appeal ?? []));
             return $response->withHeader('Content-Type', 'application/json');
         });
+        
     });
 };

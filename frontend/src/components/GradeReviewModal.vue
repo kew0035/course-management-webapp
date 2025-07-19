@@ -32,7 +32,11 @@ export default {
     scmId: {
       type: Number,
       required: true
-    }
+    },
+    courseId: {
+    type: Number,
+    required: true
+  }
   },
   data() {
     return {
@@ -47,9 +51,10 @@ export default {
   methods: {
     async fetchAppealStatus() {
       try {
-        const res = await fetch(`http://localhost:8080/student/appeal/${this.scmId}`, {
-          credentials: 'include'
-        });
+        const res = await fetch(`http://localhost:8080/student/appeal?scm_id=${this.scmId}&course_id=${this.courseId}`, {
+  credentials: 'include'
+});
+
         const data = await res.json();
         if (res.ok && data.status) {
           this.appeal = data;
@@ -64,8 +69,11 @@ export default {
     async submitAppeal() {
       const payload = {
         scm_id: this.scmId,
+        course_id: this.courseId,
         reason: this.reason
       };
+
+      console.log("🟨 Submit Payload:", payload); // ✅ Debug log
 
       try {
         const res = await fetch('http://localhost:8080/student/appeal', {
@@ -76,6 +84,7 @@ export default {
         });
 
         const result = await res.json();
+        console.log("🟩 Submit Result:", result);
 
         if (!res.ok) {
           alert(result.message || 'Error occurred');
@@ -93,9 +102,10 @@ export default {
       }
     }
   },
-  mounted() {
-    this.fetchAppealStatus();
-  }
+  watch: {
+  scmId: 'fetchAppealStatus',
+  courseId: 'fetchAppealStatus',
+}
 };
 </script>
 

@@ -52,12 +52,12 @@ class StudentService
         return $this->dao->getAdvisorNotes();
     }
 
-    public function getAppealByScmId(int $scmId, int $userId): ?array
+    public function getAppealByScmId($scmId, $courseId, $userId): ?array
     {
-        return $this->dao->getAppealByScmId($scmId, $userId) ?: [];
+        return $this->dao->getAppealByScmId($scmId, $courseId, $userId) ?: [];
     }
 
-    public function submitAppeal($scm_id, $reason, $userId)
+    public function submitAppeal($scm_id, $course_id, $reason, $userId)
     {
         if (!$scm_id || !$reason) {
             return ['status' => 400, 'message' => 'Missing required fields: scm_id and reason.'];
@@ -67,11 +67,12 @@ class StudentService
             return ['status' => 403, 'message' => 'Invalid scm_id or unauthorized access.'];
         }
 
-        if ($this->dao->appealExists($scm_id)) {
+        if ($this->dao->appealExists($scm_id, $course_id)) {
             return ['status' => 409, 'message' => 'Appeal already submitted for this component.'];
         }
 
         $this->dao->submitAppeal($scm_id, $reason);
+        
         return ['status' => 200, 'message' => 'Appeal submitted successfully.'];
     }
 }
