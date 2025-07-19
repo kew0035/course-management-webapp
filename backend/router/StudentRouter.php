@@ -15,7 +15,7 @@ return function (App $app) {
         $group->get('/grades', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
             error_log("DEBUG SESSION: " . print_r($_SESSION, true));
-            error_log('Session ID(studentgrades): ' . session_id());
+            error_log('Session ID(student grades): ' . session_id());
             error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
             if (!$userId) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
@@ -63,7 +63,7 @@ return function (App $app) {
 
         $group->get('/ranking/{courseId}', function (Request $request, Response $response, array $args) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
-            error_log('Session ID(studentranking): ' . session_id());
+            error_log('Session ID(student ranking): ' . session_id());
             error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
 
             if (!$userId) {
@@ -90,7 +90,7 @@ return function (App $app) {
 
         $group->get('/peers/{courseId}', function (Request $request, Response $response, array $args) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
-            error_log('Session ID(studentcompare): ' . session_id());
+            error_log('Session ID(student compare): ' . session_id());
             error_log('Session user_id: ' . ($_SESSION['user_id'] ?? 'null'));
 
             if (!$userId) {
@@ -104,12 +104,12 @@ return function (App $app) {
 
             $courses = $dao->getCourses();
             $enrolledCourseIds = array_column($courses, 'course_id');
-            
+
             if (!in_array($courseId, $enrolledCourseIds)) {
                 $response->getBody()->write(json_encode(['message' => 'Student is not enrolled in the selected course']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
 
             try {
                 $peers = $service->getPeers($courseId);
@@ -168,61 +168,57 @@ return function (App $app) {
 
         $group->post('/appeal', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
-        
+
             if (!$userId) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
-        
+
             $data = $request->getParsedBody();
             $scm_id = $data['scm_id'] ?? null;
             $course_id = $data['course_id'] ?? null;
             $reason = $data['reason'] ?? null;
-        
+
             if (!$scm_id || !$course_id || !$reason) {
                 $response->getBody()->write(json_encode(['message' => 'Missing required fields']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-        
+
             $dao = new StudentDAO($pdo, (int)$userId);
             $service = new StudentService($dao);
-        
+
             $result = $service->submitAppeal($scm_id, $course_id, $reason, $userId);
-            
-        
+
+
             $response->getBody()->write(json_encode(['message' => $result['message']]));
             return $response->withStatus($result['status'])->withHeader('Content-Type', 'application/json');
         });
-        
-        
-        
 
 
         $group->get('/appeal', function (Request $request, Response $response) use ($pdo) {
             $userId = $_SESSION['user_id'] ?? null;
-        
+
             if (!$userId) {
                 $response->getBody()->write(json_encode(['message' => 'Unauthorized']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
-        
+
             $params = $request->getQueryParams();
             $scmId = $params['scm_id'] ?? null;
             $courseId = $params['course_id'] ?? null;
-        
+
             if (!$scmId || !$courseId) {
                 $response->getBody()->write(json_encode(['message' => 'Missing scm_id or course_id']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-        
+
             $dao = new StudentDAO($pdo, (int)$userId);
             $service = new StudentService($dao);
-        
+
             $appeal = $service->getAppealByScmId($scmId, $courseId, $userId);
-        
+
             $response->getBody()->write(json_encode($appeal ?? []));
             return $response->withHeader('Content-Type', 'application/json');
         });
-        
     });
 };

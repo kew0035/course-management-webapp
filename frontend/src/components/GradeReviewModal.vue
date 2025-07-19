@@ -34,9 +34,9 @@ export default {
       required: true
     },
     courseId: {
-    type: Number,
-    required: true
-  }
+      type: Number,
+      required: true
+    }
   },
   data() {
     return {
@@ -52,8 +52,8 @@ export default {
     async fetchAppealStatus() {
       try {
         const res = await fetch(`http://localhost:8080/student/appeal?scm_id=${this.scmId}&course_id=${this.courseId}`, {
-  credentials: 'include'
-});
+          credentials: 'include'
+        });
 
         const data = await res.json();
         if (res.ok && data.status) {
@@ -103,9 +103,9 @@ export default {
     }
   },
   watch: {
-  scmId: 'fetchAppealStatus',
-  courseId: 'fetchAppealStatus',
-}
+    scmId: 'fetchAppealStatus',
+    courseId: 'fetchAppealStatus',
+  }
 };
 </script>
 
@@ -120,11 +120,13 @@ export default {
   font-weight: bold;
   cursor: pointer;
 }
+
 .review-btn.submitted {
   background-color: #ccc;
   color: #444;
   cursor: pointer;
 }
+
 .modal {
   position: fixed;
   top: 0;
@@ -136,11 +138,13 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
 textarea {
   width: 100%;
   height: 80px;
   margin-top: 10px;
 }
+
 .readonly {
   background: #f5f5f5;
   padding: 10px;

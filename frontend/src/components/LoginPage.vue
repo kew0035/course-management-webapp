@@ -1,9 +1,13 @@
 <template>
   <div class="page-bg">
     <div class="login-container">
-      <div id="lock-icon"><h3>🔒</h3></div>
-      <div><h2>  Login</h2></div>
-      
+      <div id="lock-icon">
+        <h3>🔒</h3>
+      </div>
+      <div>
+        <h2> Login</h2>
+      </div>
+
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="username">Username</label>
@@ -17,7 +21,7 @@
         </div>
         <button type="submit" class="login-btn">Login</button>
       </form>
-    
+
       <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
     </div>
   </div>
@@ -87,7 +91,6 @@ export default {
 </script>
 
 <style scoped>
-
 .page-bg {
   position: fixed;
   width: 100vw;
@@ -104,7 +107,7 @@ export default {
 
 .login-container {
   width: 25em;
-  height:auto;
+  height: auto;
   padding: 1.5rem;
   background: linear-gradient(135deg, #eaf2ff, #ffffff);
   border-radius: 20px;
@@ -119,7 +122,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
-  width:100%;
+  width: 100%;
 }
 
 .form-group {
@@ -136,7 +139,7 @@ export default {
 }
 
 input[type="text"],
-input[type="password"] {  
+input[type="password"] {
   width: 90%;
   padding: 0.85rem 1rem;
   border-radius: 12px;

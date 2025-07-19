@@ -26,7 +26,7 @@ return function (App $app) {
                 return $res->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new LecturerDAO($pdo,(int)$userId);
+            $dao = new LecturerDAO($pdo, (int)$userId);
             $service = new LecturerService($dao);
 
             try {
@@ -54,7 +54,7 @@ return function (App $app) {
                 return $res->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new LecturerDAO($pdo,(int)$userId);
+            $dao = new LecturerDAO($pdo, (int)$userId);
             $service = new LecturerService($dao);
 
 
@@ -91,7 +91,7 @@ return function (App $app) {
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new LecturerDAO($pdo,(int)$userId);
+            $dao = new LecturerDAO($pdo, (int)$userId);
             $service = new LecturerService($dao);
 
             $success = $service->updateScores($matric_no, $continuous_marks, $final_exam);
@@ -117,7 +117,7 @@ return function (App $app) {
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new LecturerDAO($pdo,(int)$userId);
+            $dao = new LecturerDAO($pdo, (int)$userId);
             $service = new LecturerService($dao);
 
             $components = $service->getComponents();
@@ -183,7 +183,7 @@ return function (App $app) {
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new LecturerDAO($pdo,(int)$userId);
+            $dao = new LecturerDAO($pdo, (int)$userId);
             $service = new LecturerService($dao);
 
             $service->deleteComponent($component);
@@ -204,7 +204,7 @@ return function (App $app) {
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            $dao = new LecturerDAO($pdo,(int)$userId);
+            $dao = new LecturerDAO($pdo, (int)$userId);
             $service = new LecturerService($dao);
 
             $service->syncStudentMarks();
@@ -291,7 +291,5 @@ return function (App $app) {
             $response->getBody()->write(json_encode(['message' => 'Appeal status updated']));
             return $response->withHeader('Content-Type', 'application/json');
         });
-
-
     });
 };

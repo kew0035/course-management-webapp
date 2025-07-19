@@ -1,4 +1,5 @@
 <?php
+
 namespace DAO;
 
 use PDO;
@@ -31,62 +32,11 @@ class AdvisorDAO
 
     public function getAdvisees(): array
     {
-        // $stmt = $this->pdo->prepare("
-        //     SELECT s.stud_id, s.stud_name, s.matric_no, s.gpa, n.note
-        //     FROM students s
-        //     LEFT JOIN advisor_notes n
-        //       ON s.stud_id = n.stud_id AND n.adv_id = :advId
-        //     WHERE s.advisor_id = :advId
-        // ");
-        // $stmt->execute(['advId' => $this->advisorId]);
-        // return $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->pdo->prepare("SELECT * FROM students WHERE adv_id = ?");
         $stmt->execute([$this->advisorId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // public function getStudentCourses(int $studId): array {
-    //     $stmt = $this->pdo->prepare("
-    //         SELECT 
-    //             c.course_name,
-    //             scm.component,
-    //             scm.score AS continuous_score,
-    //             sg.final_exam_score,
-    //             sg.total_score,
-    //             sg.grade
-    //         FROM student_courses sc
-    //         JOIN courses c ON sc.course_id = c.course_id
-    //         LEFT JOIN student_grades sg ON sg.course_id = c.course_id AND sg.stud_id = sc.stud_id
-    //         LEFT JOIN student_continuous_marks scm ON scm.course_id = c.course_id AND scm.sg_id = sg.sg_id
-    //         WHERE sc.stud_id = :studId
-    //         ORDER BY c.course_name, scm.component
-    //     ");
-    //     $stmt->execute(['studId' => $studId]);
-    //     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    //     // 重组为每门课一项
-    //     $courses = [];
-
-    //     foreach ($rows as $row) {
-    //         $courseName = $row['course_name'];
-
-    //         if (!isset($courses[$courseName])) {
-    //             $courses[$courseName] = [
-    //                 'course_name' => $courseName,
-    //                 'final_exam_score' => $row['final_exam_score'],
-    //                 'total_score' => $row['total_score'],
-    //                 'grade' => $row['grade'],
-    //                 'components' => []
-    //             ];
-    //         }
-
-    //         if (!empty($row['component'])) {
-    //             $courses[$courseName]['components'][$row['component']] = (float)$row['continuous_score'];
-    //         }
-    //     }
-
-    //     return array_values($courses); // reset numeric keys
-    // }
 
     public function getStudentCourses(int $studId): array
     {
@@ -108,7 +58,6 @@ class AdvisorDAO
 
         $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // 分组每门课程，整理 component 到数组中
         $courses = [];
         foreach ($raw as $row) {
             $name = $row['course_name'];
@@ -163,14 +112,6 @@ class AdvisorDAO
 
     public function getConsultationData()
     {
-        // $stmt = $this->pdo->prepare("
-        //     SELECT s.matric_no, s.stud_name, s.gpa, n.note
-        //     FROM students s
-        //     LEFT JOIN advisor_notes n ON s.stud_id = n.stud_id
-        //     WHERE s.adv_id = ?
-        //     ORDER BY s.matric_no
-        // ");
-
         $stmt = $this->pdo->prepare("
             SELECT 
                 s.matric_no, 

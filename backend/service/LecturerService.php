@@ -13,7 +13,8 @@ class LecturerService
         $this->dao = $dao;
     }
 
-    public function getCourseDetails(){
+    public function getCourseDetails()
+    {
         return $this->dao->getCourseDetails();
     }
     public function getStudents()
@@ -31,11 +32,11 @@ class LecturerService
     public function saveComponent($component, $maxMark, $weight, $originalName)
     {
         $weight = (int)$weight;
-        return $this->dao->saveComponent( $component, $maxMark, $weight, $originalName);
+        return $this->dao->saveComponent($component, $maxMark, $weight, $originalName);
     }
     public function deleteComponent($component)
     {
-        return $this->dao->deleteComponent( $component);
+        return $this->dao->deleteComponent($component);
     }
     public function syncStudentMarks()
     {

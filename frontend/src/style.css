@@ -1,8 +1,8 @@
 /*----------General----------*/
-*{
- margin:0;
- font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
+* {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 h2 {
   font-weight: 700;
@@ -45,7 +45,6 @@ h2 {
   align-items: center;
 }
 /*----------End Main container----------*/
-
 
 /*----------Navigation Tab----------*/
 .tab-nav {
@@ -90,7 +89,7 @@ h2 {
 /*----------Course Dropdown----------*/
 .dropdown-course-container {
   padding: 1em;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .dropdown-course-container label {
   display: block;
@@ -115,7 +114,7 @@ h2 {
 
 #course-select:focus {
   outline: none;
-  border-color: #357ABD;
+  border-color: #357abd;
   box-shadow: 0 0 6px rgba(53, 122, 189, 0.5);
 }
 /*----------End Course Dropdown----------*/
@@ -191,7 +190,7 @@ h2 {
 /*----------End Table: Students table & components table----------*/
 
 /*----------Continuous Assesment----------*/
-.conass-container{
+.conass-container {
   background-color: lightgray;
   border-radius: 1em;
   margin: 0.5em;
@@ -386,7 +385,8 @@ h2 {
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 0 5px 15px rgba(58, 110, 232, 0.25);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.15s ease;
   user-select: none;
 }
 .score-input-group {
@@ -463,7 +463,7 @@ h2 {
   transform: translateY(-2px);
 }
 
-.submit-btn{
+.submit-btn {
   background: #3a6ee8;
   color: white;
 }

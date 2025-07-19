@@ -145,22 +145,22 @@ export default {
 
   methods: {
     async fetchCourseDetails() {
-    try {
-    const res = await fetch("http://localhost:8080/lecturer/course-name", {
-      credentials: 'include'
-    });
+      try {
+        const res = await fetch("http://localhost:8080/lecturer/course-name", {
+          credentials: 'include'
+        });
 
-    if (!res.ok) throw new Error("Failed to fetch course name");
+        if (!res.ok) throw new Error("Failed to fetch course name");
 
-    const data = await res.json();
-    this.courseName = data.course_name;
-    this.courseCode = data.course_code;
-  } catch (error) {
-    console.error("❌ Failed to load course name:", error);
-    this.courseName = "Unknown Course";
-    this.courseCode = "";
-  }
-},
+        const data = await res.json();
+        this.courseName = data.course_name;
+        this.courseCode = data.course_code;
+      } catch (error) {
+        console.error("❌ Failed to load course name:", error);
+        this.courseName = "Unknown Course";
+        this.courseCode = "";
+      }
+    },
     validateScore(compName, maxMark) {
       if (this.editingScores[compName] > maxMark) {
         this.editingScores[compName] = maxMark;
@@ -319,17 +319,17 @@ export default {
     },
     openAddComponentModal() {
       this.isEditingComponent = false;
-      this.componentForm = { name: "", maxMark: 0, weight: 0 , };
+      this.componentForm = { name: "", maxMark: 0, weight: 0, };
       this.showComponentModal = true;
     },
     openEditComponentModal(comp) {
       this.isEditingComponent = true;
       this.componentForm = {
-    name: comp.name,
-    originalName: comp.name, // ✅ 这句是关键
-    maxMark: comp.maxMark,
-    weight: comp.weight
-  };
+        name: comp.name,
+        originalName: comp.name,
+        maxMark: comp.maxMark,
+        weight: comp.weight
+      };
       this.showComponentModal = true;
     },
 
@@ -518,5 +518,4 @@ export default {
 .custom-toast.error {
   background: #e74c3c;
 }
-
 </style>

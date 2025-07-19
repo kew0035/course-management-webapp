@@ -46,6 +46,6 @@ class AdvisorService
 
     public function getConsultationReport()
     {
-        return $this->dao->getConsultationData(); // Ensure DAO provides correct data
+        return $this->dao->getConsultationData();
     }
 }

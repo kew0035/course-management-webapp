@@ -55,30 +55,30 @@ export default {
   },
   data() {
     return {
-      localForm: { name: "", maxMark: 0, weight: 0, originalName: ""  },
+      localForm: { name: "", maxMark: 0, weight: 0, originalName: "" },
     };
   },
   watch: {
     componentForm: {
       immediate: true,
       handler(newVal) {
-        this.localForm = { 
-        name: newVal.name || "", 
-        maxMark: newVal.maxMark || 0, 
-        weight: newVal.weight || 0,
-        originalName: newVal.originalName || newVal.name || "" 
-      };
+        this.localForm = {
+          name: newVal.name || "",
+          maxMark: newVal.maxMark || 0,
+          weight: newVal.weight || 0,
+          originalName: newVal.originalName || newVal.name || ""
+        };
       },
     },
   },
   methods: {
     save() {
       this.$emit("save-component", {
-    name: this.localForm.name,
-    originalName: this.localForm.originalName || this.localForm.name,
-    maxMark: this.localForm.maxMark,
-    weight: this.localForm.weight,
-  });
+        name: this.localForm.name,
+        originalName: this.localForm.originalName || this.localForm.name,
+        maxMark: this.localForm.maxMark,
+        weight: this.localForm.weight,
+      });
     },
   },
 };

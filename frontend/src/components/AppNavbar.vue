@@ -29,8 +29,6 @@ ul {
   padding: 0;
 }
 
-li {}
-
 a {
   color: white;
   text-decoration: none;

@@ -13,11 +13,6 @@ class StudentService
         $this->dao = $dao;
     }
 
-    public function listStudents(): array
-    {
-        return $this->dao->getAll();
-    }
-
     public function getGrades()
     {
         return $this->dao->getGrades();
@@ -41,11 +36,6 @@ class StudentService
     {
         return $this->dao->getGradesByCourse($courseId);
     }
-
-    // public function calculateGPAById(): float {
-    //     $studId = $this->dao->getStudentId();
-    //     return $this->dao->calculateGPA($studId);
-    // }
 
     public function getAdvisorNotes()
     {
@@ -72,7 +62,7 @@ class StudentService
         }
 
         $this->dao->submitAppeal($scm_id, $reason);
-        
+
         return ['status' => 200, 'message' => 'Appeal submitted successfully.'];
     }
 }

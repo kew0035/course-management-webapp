@@ -17,7 +17,7 @@ class LecturerDAO
         $this->pdo = $pdo;
         $this->userId = $userId;
     }
-// get lecturer id
+    // get lecturer id
     public function getLecturerId()
     {
         $stmt = $this->pdo->prepare("SELECT lec_id FROM lecturers WHERE user_id = ?");
@@ -28,9 +28,8 @@ class LecturerDAO
         }
         return $lecturer['lec_id'];
     }
-//
 
-//get course id based on lecturer id
+    //get course id based on lecturer id
     public function getCourseIdBasedOnLecId()
     {
         $lecId = $this->getLecturerId();
@@ -42,10 +41,10 @@ class LecturerDAO
         }
         return $course['course_id'];
     }
-//
-//get course name
 
-    public function getCourseDetails(){
+    //get course name
+    public function getCourseDetails()
+    {
         $courseId = $this->getCourseIdBasedOnLecId();
         $stmt = $this->pdo->prepare("
             SELECT *
@@ -59,7 +58,8 @@ class LecturerDAO
         }
         return $course;
     }
-//end get course name
+
+    //end get course name
     public function getStudentsByCourseId()
     {
         $lecId = $this->getLecturerId();
@@ -221,172 +221,103 @@ class LecturerDAO
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // public function saveComponent($component, $maxMark, $weightPercent)
-    // {
-    //     try {
-    //         $this->pdo->beginTransaction();
-
-    //         $component = trim($component);
-    //         $weight = (int)$weightPercent;
-    //         $maxMark = (int)$maxMark;
-    //         $courseId = $this->getCourseIdBasedOnLecId();
-
-    //         if ($component === '' || !is_numeric($weight) || $weight <= 0 || $weight > 100 || !is_numeric($maxMark) || $maxMark <= 0) {
-    //             throw new InvalidArgumentException("Invalid component data");
-    //         }
-
-    //         $stmt = $this->pdo->prepare("
-    //             SELECT SUM(weight) AS total 
-    //             FROM grade_weights 
-    //             WHERE course_id = :course_id
-    //         ");
-    //         $stmt->execute(['course_id' => $courseId]);
-    //         $currentTotal = (int)$stmt->fetchColumn();
-
-    //         $existing = $this->getComponent($component);
-    //         if ($existing) {
-    //             $currentTotal -= (int)$existing['weight'];
-    //         }
-
-    //         if (($currentTotal + $weight) > 70) {
-    //             throw new RuntimeException("Total weight cannot exceed 70%");
-    //         }
-
-    //         if ($existing) {
-    //             $stmt = $this->pdo->prepare("
-    //                 UPDATE grade_weights 
-    //                 SET max_mark = :max_mark, weight = :weight 
-    //                 WHERE gw_id = :id
-    //             ");
-    //             $stmt->execute([
-    //                 'max_mark' => $maxMark,
-    //                 'weight' => $weight,
-    //                 'id' => $existing['gw_id']
-    //             ]);
-    //         } else {
-    //             $stmt = $this->pdo->prepare("
-    //                 INSERT INTO grade_weights 
-    //                     (course_id, component, max_mark, weight) 
-    //                 VALUES 
-    //                     (:course_id, :component, :max_mark, :weight)
-    //             ");
-    //             $stmt->execute([
-    //                 'course_id' => $courseId,
-    //                 'component' => $component,
-    //                 'max_mark' => $maxMark,
-    //                 'weight' => $weight
-    //             ]);
-    //         }
-
-    //         $this->pdo->commit();
-    //         return true;
-    //     } catch (Exception $e) {
-    //         $this->pdo->rollBack();
-    //         error_log("❌ Save component failed: " . $e->getMessage());
-    //         throw $e;
-    //     }
-    // }
 
     public function saveComponent($component, $maxMark, $weightPercent, $originalName = null)
-{
-    try {
-        $this->pdo->beginTransaction();
+    {
+        try {
+            $this->pdo->beginTransaction();
 
-        $component = trim($component);
-        $originalName = trim($originalName ?? $component); // fallback if null
-        $weight = (int)$weightPercent;
-        $maxMark = (int)$maxMark;
-        $courseId = $this->getCourseIdBasedOnLecId();
+            $component = trim($component);
+            $originalName = trim($originalName ?? $component); // fallback if null
+            $weight = (int)$weightPercent;
+            $maxMark = (int)$maxMark;
+            $courseId = $this->getCourseIdBasedOnLecId();
 
-        error_log("🛠️ SaveComponent invoked");
-        error_log("👉 originalName: $originalName | new name: $component | maxMark: $maxMark | weight: $weight");
+            error_log("🛠️ SaveComponent invoked");
+            error_log("👉 originalName: $originalName | new name: $component | maxMark: $maxMark | weight: $weight");
 
-        if ($component === '' || !is_numeric($weight) || $weight <= 0 || $weight > 100 || !is_numeric($maxMark) || $maxMark <= 0) {
-            throw new InvalidArgumentException("Invalid component data");
-        }
+            if ($component === '' || !is_numeric($weight) || $weight <= 0 || $weight > 100 || !is_numeric($maxMark) || $maxMark <= 0) {
+                throw new InvalidArgumentException("Invalid component data");
+            }
 
-        // Check if component exists (using original name)
-        $existing = $this->getComponent($originalName);
-        if ($existing) {
-            $currentTotalStmt = $this->pdo->prepare("
-                SELECT SUM(weight) AS total FROM grade_weights 
-                WHERE course_id = :course_id AND component != :original_component
-            ");
-            $currentTotalStmt->execute([
-                'course_id' => $courseId,
-                'original_component' => $originalName
-            ]);
-        } else {
-            $currentTotalStmt = $this->pdo->prepare("
-                SELECT SUM(weight) AS total FROM grade_weights 
-                WHERE course_id = :course_id
-            ");
-            $currentTotalStmt->execute(['course_id' => $courseId]);
-        }
-
-        $currentTotal = (int)$currentTotalStmt->fetchColumn();
-
-        if (($currentTotal + $weight) > 70) {
-            throw new RuntimeException("Total weight cannot exceed 70%");
-        }
-
-        // Update case
-        if ($existing) {
-            // Now update grade_weights
-            $stmt = $this->pdo->prepare("
-                UPDATE grade_weights 
-                SET component = :new_component, max_mark = :max_mark, weight = :weight 
-                WHERE gw_id = :gw_id
-            ");
-            $stmt->execute([
-                'new_component' => $component,
-                'max_mark' => $maxMark,
-                'weight' => $weight,
-                'gw_id' => $existing['gw_id']
-            ]);
-            
-            // First update student_continuous_marks table if name is changed
-            if ($originalName !== $component) {
-                $syncStmt = $this->pdo->prepare("
-                    UPDATE student_continuous_marks 
-                    SET component = :new_component 
-                    WHERE course_id = :course_id AND component = :original_component
+            // Check if component exists (using original name)
+            $existing = $this->getComponent($originalName);
+            if ($existing) {
+                $currentTotalStmt = $this->pdo->prepare("
+                    SELECT SUM(weight) AS total FROM grade_weights 
+                    WHERE course_id = :course_id AND component != :original_component
                 ");
-                $syncStmt->execute([
-                    'new_component' => $component,
+                $currentTotalStmt->execute([
                     'course_id' => $courseId,
                     'original_component' => $originalName
                 ]);
+            } else {
+                $currentTotalStmt = $this->pdo->prepare("
+                    SELECT SUM(weight) AS total FROM grade_weights 
+                    WHERE course_id = :course_id
+                ");
+                $currentTotalStmt->execute(['course_id' => $courseId]);
             }
 
-            
-        } else {
-            // Insert new component
-            $stmt = $this->pdo->prepare("
-                INSERT INTO grade_weights 
-                (course_id, component, max_mark, weight) 
-                VALUES (:course_id, :component, :max_mark, :weight)
-            ");
-            $stmt->execute([
-                'course_id' => $courseId,
-                'component' => $component,
-                'max_mark' => $maxMark,
-                'weight' => $weight
-            ]);
+            $currentTotal = (int)$currentTotalStmt->fetchColumn();
+
+            if (($currentTotal + $weight) > 70) {
+                throw new RuntimeException("Total weight cannot exceed 70%");
+            }
+
+            // Update case
+            if ($existing) {
+                // Now update grade_weights
+                $stmt = $this->pdo->prepare("
+                    UPDATE grade_weights 
+                    SET component = :new_component, max_mark = :max_mark, weight = :weight 
+                    WHERE gw_id = :gw_id
+                ");
+                $stmt->execute([
+                    'new_component' => $component,
+                    'max_mark' => $maxMark,
+                    'weight' => $weight,
+                    'gw_id' => $existing['gw_id']
+                ]);
+
+                // First update student_continuous_marks table if name is changed
+                if ($originalName !== $component) {
+                    $syncStmt = $this->pdo->prepare("
+                        UPDATE student_continuous_marks 
+                        SET component = :new_component 
+                        WHERE course_id = :course_id AND component = :original_component
+                    ");
+                    $syncStmt->execute([
+                        'new_component' => $component,
+                        'course_id' => $courseId,
+                        'original_component' => $originalName
+                    ]);
+                }
+            } else {
+                // Insert new component
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO grade_weights 
+                    (course_id, component, max_mark, weight) 
+                    VALUES (:course_id, :component, :max_mark, :weight)
+                ");
+                $stmt->execute([
+                    'course_id' => $courseId,
+                    'component' => $component,
+                    'max_mark' => $maxMark,
+                    'weight' => $weight
+                ]);
+            }
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            error_log("❌ Save component failed: " . $e->getMessage());
+            throw $e;
         }
-
-        $this->pdo->commit();
-        return true;
-    } catch (Exception $e) {
-        $this->pdo->rollBack();
-        error_log("❌ Save component failed: " . $e->getMessage());
-        throw $e;
     }
-}
 
-
-
-    private function getComponent( $component)
+    private function getComponent($component)
     {
         $courseId = $this->getCourseIdBasedOnLecId();
         $stmt = $this->pdo->prepare("
@@ -399,7 +330,7 @@ class LecturerDAO
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function deleteComponent( $component)
+    public function deleteComponent($component)
     {
         try {
             $this->pdo->beginTransaction();

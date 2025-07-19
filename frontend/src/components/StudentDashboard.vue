@@ -49,15 +49,11 @@
                 <td>{{ item.weight }}</td>
                 <td>{{ weightedScore(item).toFixed(2) }}</td>
                 <td v-if="item.scmId !== null">
-    <GradeReviewModal
-      :courseId="Number(courseId)"
-      :scmId="item.scmId"
-      :componentName="item.component"
-    />
-  </td>
-  <td v-else>
-    <span style="color: gray">Not Applicable</span>
-  </td>
+                  <GradeReviewModal :courseId="Number(courseId)" :scmId="item.scmId" :componentName="item.component" />
+                </td>
+                <td v-else>
+                  <span style="color: gray">Not Applicable</span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -470,13 +466,13 @@ export default {
 </script>
 
 <style scoped>
-
 .section-title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: #2c3e50;
 }
+
 .score-card {
   background-color: #f9fbff;
   border: 1px solid #e0e6f2;
@@ -485,6 +481,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   margin-bottom: 1.5rem;
 }
+
 .summary {
   display: flex;
   justify-content: flex-end;

@@ -173,36 +173,7 @@ class StudentDAO
         return $peers;
     }
 
-    public function getCourseIdByUserId($userId)
-    {
-        $sql = "
-            SELECT course_id 
-            FROM student_grades 
-            WHERE stud_id = (
-                SELECT stud_id 
-                FROM students 
-                WHERE user_id = :user_id 
-                LIMIT 1
-            )
-            LIMIT 1
-        ";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['user_id' => $userId]);
-        $course = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $course ? $course['course_id'] : null;
-    }
 
-
-
-
-    // public function insert(array $data): void {
-    //     $stmt = $this->pdo->prepare("INSERT INTO students (name, email, age) VALUES (:name, :email, :age)");
-    //     $stmt->execute([
-    //         ':name' => $data['name'],
-    //         ':email' => $data['email'],
-    //         ':age' => $data['age'] ?? null
-    //     ]);
-    // }
 
     public function getCourses()
     {
@@ -284,14 +255,14 @@ class StudentDAO
           AND sg.course_id = :course_id 
           AND s.user_id = :user_id
     ");
-    $stmt->execute([
-        'scm_id' => $scmId,
-        'course_id' => $courseId,
-        'user_id' => $userId
-    ]);
+        $stmt->execute([
+            'scm_id' => $scmId,
+            'course_id' => $courseId,
+            'user_id' => $userId
+        ]);
 
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-}
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
 
     public function isScmOwnedByUser($scm_id, $userId)
     {
@@ -315,14 +286,14 @@ class StudentDAO
             WHERE ga.scm_id = ? AND sg.course_id = ?
             LIMIT 1
         ");
-        $stmt->execute([$scm_id, $course_id]); 
+        $stmt->execute([$scm_id, $course_id]);
         return $stmt->fetch() !== false;
     }
-    
+
 
     public function submitAppeal($scm_id, $reason)
     {
-        
+
         $stmt = $this->pdo->prepare("
             INSERT INTO grade_appeals (scm_id, reason, status) 
             VALUES (?, ?, 'pending')
@@ -330,89 +301,6 @@ class StudentDAO
         $stmt->execute([$scm_id, $reason]);
     }
 
-    // public function calculateGPA($studId): float {
-    //     $stmt = $this->pdo->prepare("
-    //         SELECT sg.sg_id, sg.total_score, c.credit
-    //         FROM student_grades sg
-    //         JOIN courses c ON sg.course_id = c.course_id
-    //         WHERE sg.stud_id = ?
-    //     ");
-    //     $stmt->execute([$studId]);
-    //     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    //     $totalQualityPoints = 0;
-    //     $totalCredits = 0;
-
-    //     foreach ($results as $r) {
-    //         $score = $r['total_score'];
-    //         $credit = $r['credit'];
-    //         $gradePoint = $this->getGradePointFromScore($score);
-    //         $totalQualityPoints += $gradePoint * $credit;
-    //         $totalCredits += $credit;
-
-    //         $stmtGrade = $this->pdo->prepare("UPDATE student_grades SET grade = :grade WHERE sg_id = :id");
-    //         $stmtGrade->execute([
-    //             'grade' => $this->getGradeFromScore($score),
-    //             'id' => $r['sg_id']
-    //         ]);
-    //     }
-
-    //     $gpa = $totalCredits > 0 ? round($totalQualityPoints / $totalCredits, 2) : 0.00;
-
-    //     $stmtUpdate = $this->pdo->prepare("UPDATE students SET gpa = :gpa WHERE stud_id = :id");
-    //     $stmtUpdate->execute(['gpa' => $gpa, 'id' => $studId]);
-
-    //     return $gpa;
-    // }
-
-    // private function getGradeFromScore(float $score): string {
-    //     if ($score >= 90) return 'A+';
-    //     if ($score >= 80) return 'A';
-    //     if ($score >= 75) return 'A-';
-    //     if ($score >= 70) return 'B+';
-    //     if ($score >= 65) return 'B';
-    //     if ($score >= 60) return 'B-';
-    //     if ($score >= 55) return 'C+';
-    //     if ($score >= 50) return 'C';
-    //     if ($score >= 45) return 'C-';
-    //     if ($score >= 40) return 'D+';
-    //     if ($score >= 35) return 'D';
-    //     if ($score >= 30) return 'D-';
-    //     return 'F';
-    // }
-
-    // private function getGradePointFromScore(float $score): float {
-    //     return match (true) {
-    //         $score >= 90 => 4.00,
-    //         $score >= 80 => 4.00,
-    //         $score >= 75 => 3.67,
-    //         $score >= 70 => 3.33,
-    //         $score >= 65 => 3.00,
-    //         $score >= 60 => 2.67,
-    //         $score >= 55 => 2.33,
-    //         $score >= 50 => 2.00,
-    //         $score >= 45 => 1.67,
-    //         $score >= 40 => 1.33,
-    //         $score >= 35 => 1.00,
-    //         $score >= 30 => 0.67,
-    //         default => 0.00
-    //     };
-    // }
-
-    public function getStudentIdByMatric($matricNo)
-    {
-        $stmt = $this->pdo->prepare("SELECT stud_id FROM students WHERE matric_no = ?");
-        $stmt->execute([$matricNo]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result['stud_id'] : null;
-    }
-
-    public function getAllStudentsByCourse($courseId)
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM students WHERE course_id = ?");
-        $stmt->execute([$courseId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
     public function getAdvisorNotes()
     {
